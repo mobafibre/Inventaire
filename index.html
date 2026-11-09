@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <!-- Navigation Sidebar (Adaptative Mobile) -->
+    <!-- Navigation Sidebar -->
     <aside class="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 flex flex-col justify-between shrink-0 shadow-sm z-10">
         <div>
             <!-- Header Mobile / Desktop -->
@@ -51,36 +51,32 @@
                 </div>
             </div>
 
-            <!-- Menu Défilant Horizontal sur Téléphone, Vertical sur PC -->
+            <!-- Menu réorganisé (1: Stock, 2: Entrée/Sortie, 3: Graphiques, 4: Historique, 5: IA Checking) -->
             <nav class="p-2 md:p-3 flex md:flex-col overflow-x-auto gap-1 text-xs">
-                <button onclick="switchTab('whatsapp')" id="nav-whatsapp" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2 md:py-3 rounded-xl font-medium transition-all bg-blue-50 text-blue-600 border border-blue-100">
-                    <i class="fab text-sm md:text-lg fa-whatsapp text-emerald-600"></i>
-                    <span>WhatsApp AI</span>
-                </button>
-                <button onclick="switchTab('movement')" id="nav-movement" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
-                    <i class="fas text-sm md:text-lg fa-right-left text-amber-500"></i>
-                    <span>Mouvements</span>
-                </button>
-                <button onclick="switchTab('stock')" id="nav-stock" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                <button onclick="switchTab('stock')" id="nav-stock" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-semibold transition-all bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
                     <i class="fas text-sm md:text-lg fa-table text-blue-500"></i>
-                    <span>Stock & Alertes</span>
+                    <span>1. Stock & Alertes</span>
                 </button>
-                <button onclick="switchTab('tech')" id="nav-tech" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
-                    <i class="fas text-sm md:text-lg fa-users text-sky-500"></i>
-                    <span>Techniciens</span>
+                <button onclick="switchTab('movement')" id="nav-movement" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                    <i class="fas text-sm md:text-lg fa-right-left text-amber-500"></i>
+                    <span>2. Entrée / Sortie</span>
                 </button>
-                <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
                     <i class="fas text-sm md:text-lg fa-chart-pie text-emerald-500"></i>
-                    <span>Graphiques</span>
+                    <span>3. Graphiques</span>
                 </button>
-                <button onclick="switchTab('history')" id="nav-history" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                <button onclick="switchTab('history')" id="nav-history" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
                     <i class="fas text-sm md:text-lg fa-history text-purple-500"></i>
-                    <span>Historique</span>
+                    <span>4. Historique</span>
+                </button>
+                <button onclick="switchTab('iacheck')" id="nav-iacheck" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all">
+                    <i class="fas text-sm md:text-lg fa-robot text-indigo-500"></i>
+                    <span>5. IA Checking</span>
                 </button>
             </nav>
         </div>
 
-        <!-- Widget masqué sur petit écran mobile pour gagner de la place -->
+        <!-- Widget masqué sur petit écran mobile -->
         <div class="hidden md:block p-4 m-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2 shadow-inner">
             <div class="flex justify-between items-center text-slate-600">
                 <span>Total Réf. Articles:</span>
@@ -97,137 +93,20 @@
         <!-- Header -->
         <header class="h-14 md:h-16 border-b border-slate-200 px-4 md:px-6 flex items-center justify-between bg-white shrink-0 shadow-sm">
             <h2 id="page-title" class="text-sm md:text-lg font-semibold text-slate-800 flex items-center gap-2 truncate">
-                <i class="fab fa-whatsapp text-emerald-600"></i> Synchronisation WhatsApp
+                <i class="fas fa-table text-blue-500"></i> État du Stock
             </h2>
             
             <div class="flex items-center gap-2">
-                <button onclick="exportStockCSV()" class="px-2.5 py-1.5 md:px-3.5 md:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition border border-slate-200">
-                    <i class="fas fa-file-csv"></i> <span class="hidden sm:inline">Export CSV</span>
+                <button onclick="exportStockCSV()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition border border-slate-200 shadow-sm">
+                    <i class="fas fa-file-csv text-emerald-600"></i> <span class="hidden sm:inline">Export CSV</span>
                 </button>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-3 md:p-6">
 
-            <!-- SECTION 1: WHATSAPP (RESPONSIVE) -->
-            <section id="tab-whatsapp" class="tab-content h-full">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-sm">
-                        <div class="space-y-3 md:space-y-4">
-                            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                                <h3 class="font-semibold text-sm md:text-base text-slate-800 flex items-center gap-2">
-                                    <i class="fas fa-user-gear text-blue-600"></i> Formulaire Automatique
-                                </h3>
-                                <button onclick="resetWaForm()" class="text-xs text-slate-500 hover:text-rose-600 font-medium">
-                                    <i class="fas fa-rotate-right"></i> Vider
-                                </button>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2 md:gap-3">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Société</label>
-                                    <select id="wa-societe-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-800 focus:outline-none font-medium">
-                                        <option value="Moba Fibre">Moba Fibre</option>
-                                        <option value="Nexum & Co">Nexum & Co</option>
-                                        <option value="Horizon Groupe">Horizon Groupe</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Dépôt</label>
-                                    <select id="wa-secteur-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-800 focus:outline-none font-medium">
-                                        <option value="Garges" selected>Garges</option>
-                                        <option value="Bordeaux">Bordeaux</option>
-                                        <option value="Orthez">Orthez</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Nom & Prénom Technicien</label>
-                                <input type="text" id="wa-tech-name" placeholder="Ex: Jean Dupont" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none font-medium" oninput="generateWhatsAppFromFields()">
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Opérateur affecté</label>
-                                <select id="wa-op-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none font-medium" onchange="generateWhatsAppFromFields()">
-                                    <option value="orange">Orange</option>
-                                    <option value="free">Free</option>
-                                    <option value="bouygues">Bouygues</option>
-                                    <option value="stock_generique">Générique / Stock</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="text-[11px] font-medium text-slate-600">Consommables détectés</label>
-                                    <button onclick="addWaItemRow()" class="text-[11px] bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-lg font-semibold flex items-center gap-1">
-                                        <i class="fas fa-plus"></i> Ligne
-                                    </button>
-                                </div>
-                                <div id="wa-items-container" class="space-y-2 max-h-36 overflow-y-auto pr-1"></div>
-                            </div>
-                        </div>
-
-                        <div class="pt-3 border-t border-slate-100 mt-3">
-                            <button onclick="submitWaOutflow()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
-                                <i class="fas fa-check-circle"></i> Valider la sortie de stock
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-sm">
-                        <div class="flex-1 flex flex-col">
-                            <div class="flex flex-wrap items-center justify-between pb-2 border-b border-slate-100 gap-2 mb-3">
-                                <h3 class="font-semibold text-xs md:text-sm text-slate-800 flex items-center gap-1.5">
-                                    <i class="fab fa-whatsapp text-emerald-600"></i> Message Bruts WhatsApp
-                                </h3>
-                                <button onclick="reformulateWhatsAppMessage()" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1">
-                                    <i class="fas fa-wand-magic-sparkles text-amber-500"></i> Alignement IA
-                                </button>
-                            </div>
-
-                            <textarea id="wa-textarea" class="w-full flex-1 min-h-[160px] md:min-h-[220px] bg-slate-50 border border-slate-200 rounded-xl p-3 font-mono text-xs text-slate-700 focus:outline-none transition resize-none leading-relaxed" placeholder="Collez ou saisissez le message ici..." oninput="parseWhatsAppToFields()"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 mt-3">
-                            <button onclick="copyWaText()" class="bg-slate-100 text-slate-700 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border border-slate-200">
-                                <i class="fas fa-copy"></i> Copier
-                            </button>
-                            <button onclick="sendWaDirect()" class="bg-emerald-600 text-white font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
-                                <i class="fab fa-whatsapp"></i> Envoyer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 2: MOUVEMENTS -->
-            <section id="tab-movement" class="tab-content hidden h-full">
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full">
-                    <div class="flex justify-between items-center pb-3 border-b border-slate-100 gap-2">
-                        <div>
-                            <h3 class="font-semibold text-sm md:text-lg text-slate-900">Mouvements Groupés</h3>
-                        </div>
-                        <button onclick="addBatchRow()" class="bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1 transition">
-                            <i class="fas fa-plus"></i> Ligne
-                        </button>
-                    </div>
-
-                    <div id="batch-rows-container" class="flex-1 overflow-y-auto space-y-2 py-3"></div>
-
-                    <div class="pt-3 border-t border-slate-100 flex justify-end gap-2 mt-auto">
-                        <button onclick="clearBatchRows()" class="bg-slate-100 text-slate-700 text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
-                            Vider
-                        </button>
-                        <button onclick="submitBatchMovements()" class="bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md transition flex items-center gap-1.5">
-                            <i class="fas fa-save"></i> Enregistrer
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 3: ÉTAT DU STOCK (SANS COLONNE DÉPÔT, RESPONSIVE TABLEAU) -->
-            <section id="tab-stock" class="tab-content hidden h-full">
+            <!-- 1. ÉTAT DU STOCK -->
+            <section id="tab-stock" class="tab-content h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-3 md:p-5 shadow-sm flex flex-col h-full">
                     
                     <div class="flex flex-col gap-3 pb-3 border-b border-slate-100">
@@ -237,14 +116,14 @@
                         
                         <!-- Filtres Responsive -->
                         <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
-                            <select id="filter-secteur" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none">
+                            <select id="filter-secteur" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none">
                                 <option value="Garges" selected>Dépôt : Garges</option>
                                 <option value="Bordeaux">Dépôt : Bordeaux</option>
                                 <option value="Orthez">Dépôt : Orthez</option>
                                 <option value="">Tous les Dépôts</option>
                             </select>
 
-                            <select id="filter-operateur" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none">
+                            <select id="filter-operateur" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none">
                                 <option value="" selected>Opérateur : Tous</option>
                                 <option value="orange">Orange</option>
                                 <option value="free">Free</option>
@@ -252,26 +131,26 @@
                                 <option value="stock_generique">Générique / Stock</option>
                             </select>
 
-                            <div class="relative col-span-2 sm:w-48">
-                                <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                                <input type="text" id="stock-search" placeholder="Rechercher..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none" oninput="renderStockTable()">
+                            <div class="relative col-span-2 sm:w-56">
+                                <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                                <input type="text" id="stock-search" placeholder="Rechercher..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none" oninput="renderStockTable()">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Conteneur défilant latéralement pour le tableau mobile -->
+                    <!-- Tableau du stock -->
                     <div class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200">
                         <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
-                                    <th class="p-2.5 text-center">N°</th>
-                                    <th class="p-2.5">Désignation</th>
-                                    <th class="p-2.5 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
-                                    <th class="p-2.5 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
-                                    <th class="p-2.5 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
-                                    <th class="p-2.5 text-center text-emerald-700 bg-emerald-50/60">Total</th>
-                                    <th class="p-2.5 text-center">Alerte</th>
-                                    <th class="p-2.5">Unité / Détails</th>
+                                    <th class="p-3 text-center">N°</th>
+                                    <th class="p-3">Désignation</th>
+                                    <th class="p-3 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
+                                    <th class="p-3 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
+                                    <th class="p-3 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
+                                    <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
+                                    <th class="p-3 text-center">Alerte</th>
+                                    <th class="p-3">Unité / Détails</th>
                                 </tr>
                             </thead>
                             <tbody id="stock-table-body" class="divide-y divide-slate-100 text-[11px] font-medium text-slate-700"></tbody>
@@ -280,45 +159,77 @@
                 </div>
             </section>
 
-            <!-- SECTION 4: RAPPORT TECHNICIENS -->
-            <section id="tab-tech" class="tab-content hidden h-full">
+            <!-- 2. ENTRÉE / SORTIE (AGRANDI ET OPTIMISÉ) -->
+            <section id="tab-movement" class="tab-content hidden h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full">
-                    <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                        <h3 class="font-semibold text-sm md:text-lg text-slate-900">Suivi Techniciens</h3>
-                        <input type="text" id="tech-filter-name" placeholder="Nom..." class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-800" oninput="renderTechReport()">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100 gap-2">
+                        <div>
+                            <h3 class="font-bold text-base md:text-xl text-slate-900 flex items-center gap-2">
+                                <i class="fas fa-right-left text-amber-500"></i> Formulaire d'Entrée & Sortie
+                            </h3>
+                            <p class="text-xs text-slate-500">Ajoutez ou déduisez du matériel directement sur le stock.</p>
+                        </div>
+                        <button onclick="addBatchRow()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition shadow-sm">
+                            <i class="fas fa-plus"></i> Ajouter une ligne
+                        </button>
                     </div>
 
-                    <div class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200">
-                        <table class="w-full text-left border-collapse min-w-[500px]">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-600 text-[11px] font-bold border-b border-slate-200">
-                                    <th class="p-2.5">Technicien</th>
-                                    <th class="p-2.5">Société / Dépôt</th>
-                                    <th class="p-2.5">Matériel Attribué</th>
-                                    <th class="p-2.5 text-center">Qté Sortie</th>
-                                    <th class="p-2.5">Dernière Sortie</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tech-table-body" class="divide-y divide-slate-100 text-[11px] text-slate-700"></tbody>
-                        </table>
+                    <div id="batch-rows-container" class="flex-1 overflow-y-auto space-y-3 py-4"></div>
+
+                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3 mt-auto">
+                        <button onclick="clearBatchRows()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 transition">
+                            Vider le formulaire
+                        </button>
+                        <button onclick="submitBatchMovements()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                            <i class="fas fa-save"></i> Valider les Mouvements
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 5: GRAPHIQUES -->
+            <!-- 3. GRAPHIQUES (VISUEL AMÉLIORÉ & CARTE KPI) -->
             <section id="tab-analytics" class="tab-content hidden h-full">
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full overflow-y-auto space-y-4">
-                    <h3 class="font-semibold text-sm md:text-lg text-slate-900">Graphiques de Consommation</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                            <h4 class="font-semibold text-xs text-slate-700 mb-2 text-center">Volume par Opérateur</h4>
-                            <div class="w-full h-48 md:h-64 relative">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full overflow-y-auto space-y-5">
+                    
+                    <div>
+                        <h3 class="font-bold text-base md:text-xl text-slate-900 flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-emerald-500"></i> Analytiques & Mouvements
+                        </h3>
+                        <p class="text-xs text-slate-500">Vue synthétique de l'activité du stock et de la consommation matériel.</p>
+                    </div>
+
+                    <!-- Cartes de statistiques rapide (KPI) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 rounded-2xl">
+                            <span class="text-xs text-blue-600 font-semibold block mb-1">Moba Fibre</span>
+                            <span id="kpi-moba" class="text-2xl font-extrabold text-blue-900">0</span>
+                        </div>
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4 rounded-2xl">
+                            <span class="text-xs text-amber-600 font-semibold block mb-1">Nexum & Co</span>
+                            <span id="kpi-nexum" class="text-2xl font-extrabold text-amber-900">0</span>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 p-4 rounded-2xl">
+                            <span class="text-xs text-purple-600 font-semibold block mb-1">Horizon Groupe</span>
+                            <span id="kpi-horizon" class="text-2xl font-extrabold text-purple-900">0</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
+                                <span>Volume de Sorties par Opérateur</span>
+                                <i class="fas fa-chart-donut text-slate-400"></i>
+                            </h4>
+                            <div class="w-full h-56 md:h-64 relative">
                                 <canvas id="chartOperator"></canvas>
                             </div>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                            <h4 class="font-semibold text-xs text-slate-700 mb-2 text-center">Répartition par Société</h4>
-                            <div class="w-full h-48 md:h-64 relative">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
+                                <span>Répartition Totale du Stock par Société</span>
+                                <i class="fas fa-chart-bar text-slate-400"></i>
+                            </h4>
+                            <div class="w-full h-56 md:h-64 relative">
                                 <canvas id="chartSociete"></canvas>
                             </div>
                         </div>
@@ -326,12 +237,14 @@
                 </div>
             </section>
 
-            <!-- SECTION 6: HISTORIQUE -->
+            <!-- 4. HISTORIQUE -->
             <section id="tab-history" class="tab-content hidden h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full">
                     <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                        <h3 class="font-semibold text-sm md:text-lg text-slate-900">Historique des Mouvements</h3>
-                        <select id="filter-period" onchange="renderHistoryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-1 text-xs text-slate-800">
+                        <h3 class="font-bold text-base md:text-xl text-slate-900 flex items-center gap-2">
+                            <i class="fas fa-history text-purple-500"></i> Historique des Mouvements
+                        </h3>
+                        <select id="filter-period" onchange="renderHistoryTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold">
                             <option value="all">Tout</option>
                             <option value="today">Aujourd'hui</option>
                             <option value="week">7 jours</option>
@@ -343,13 +256,13 @@
                         <table class="w-full text-left border-collapse min-w-[550px]">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-600 text-[11px] font-bold border-b border-slate-200">
-                                    <th class="p-2.5">Date</th>
-                                    <th class="p-2.5">Type</th>
-                                    <th class="p-2.5">Société</th>
-                                    <th class="p-2.5">Opérateur</th>
-                                    <th class="p-2.5">Désignation</th>
-                                    <th class="p-2.5 text-center">Qté</th>
-                                    <th class="p-2.5">Intervenant</th>
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Type</th>
+                                    <th class="p-3">Société</th>
+                                    <th class="p-3">Opérateur</th>
+                                    <th class="p-3">Désignation</th>
+                                    <th class="p-3 text-center">Qté</th>
+                                    <th class="p-3">Intervenant</th>
                                 </tr>
                             </thead>
                             <tbody id="history-table-body" class="divide-y divide-slate-100 text-[11px] text-slate-700"></tbody>
@@ -358,10 +271,102 @@
                 </div>
             </section>
 
+            <!-- 5. IA CHECKING (NOUVELLE RUBRIQUE DÉDIÉE) -->
+            <section id="tab-iacheck" class="tab-content hidden h-full">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 h-full">
+                    
+                    <!-- Colonne 1 : Saisie de messages complexes -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-sm h-full">
+                        <div class="space-y-3 flex-1 flex flex-col">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                                <h3 class="font-bold text-sm md:text-base text-slate-900 flex items-center gap-2">
+                                    <i class="fas fa-robot text-indigo-600"></i> IA Checking - Import de Messages
+                                </h3>
+                                <button onclick="document.getElementById('ia-textarea').value='';" class="text-xs text-slate-500 hover:text-rose-600 font-medium">
+                                    <i class="fas fa-rotate-right"></i> Effacer
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société</label>
+                                    <select id="ia-societe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="Moba Fibre">Moba Fibre</option>
+                                        <option value="Nexum & Co">Nexum & Co</option>
+                                        <option value="Horizon Groupe">Horizon Groupe</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dépôt</label>
+                                    <select id="ia-secteur" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="Garges" selected>Garges</option>
+                                        <option value="Bordeaux">Bordeaux</option>
+                                        <option value="Orthez">Orthez</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Opérateur</label>
+                                    <select id="ia-operator" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
+                                        <option value="orange">Orange</option>
+                                        <option value="free">Free</option>
+                                        <option value="bouygues">Bouygues</option>
+                                        <option value="stock_generique">Générique</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 flex flex-col pt-2">
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Collez ici les messages WhatsApp bruts (plusieurs techniciens / équipements) :</label>
+                                <textarea id="ia-textarea" class="w-full flex-1 min-h-[220px] bg-slate-50 border border-slate-200 rounded-xl p-3 font-mono text-xs text-slate-700 focus:outline-none transition leading-relaxed resize-none" placeholder="Exemple :
+Jean Dupont 
+- Jarretière Optique : 5
+- PTO : 2
+
+Retour Matériel / Entrée :
+Marc Martin
+- PBO : 3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 mt-3">
+                            <button onclick="processIaCheckingText()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
+                                <i class="fas fa-wand-magic-sparkles"></i> Analyser & Parser avec l'IA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Résultat de l'analyse / Validation -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-sm h-full">
+                        <div class="flex-1 flex flex-col">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
+                                <h3 class="font-bold text-xs md:text-sm text-slate-900 flex items-center gap-2">
+                                    <i class="fas fa-list-check text-emerald-600"></i> Mouvements Détectés (<span id="ia-count">0</span>)
+                                </h3>
+                                <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold">Vérification interactive</span>
+                            </div>
+
+                            <div id="ia-detected-list" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[250px]">
+                                <div class="text-center py-12 text-slate-400 text-xs">
+                                    <i class="fas fa-microchip text-3xl mb-2 text-slate-300"></i>
+                                    <p>Collez des messages à gauche et cliquez sur <b>"Analyser"</b> pour prévisualiser les entrées et sorties de stock.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 mt-3">
+                            <button onclick="applyIaMovementsToStock()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
+                                <i class="fas fa-database"></i> Valider et Mettre à jour le Stock
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
         </div>
     </main>
 
-    <!-- SCRIPT COMPLETE LOGIC & MATCHING -->
+    <!-- SCRIPT DE LOGIQUE ET DE CORRESPONDANCE -->
     <script>
         const SUPABASE_URL = "https://twweuaqznvgubmwyhdxq.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_rge0QLe1o9m50rHn9QKCDA_ItfPPAn6";
@@ -370,13 +375,12 @@
 
         let stockData = [];
         let historyData = [];
-        let isParsingLocked = false;
+        let parsedIaItems = [];
         let chartOpInstance = null;
         let chartSocInstance = null;
 
         window.onload = async function() {
             await loadSupabaseData();
-            addWaItemRow();
             addBatchRow();
         };
 
@@ -392,7 +396,6 @@
                 historyData = hist || [];
 
                 renderStockTable();
-                renderTechReport();
                 renderHistoryTable();
                 renderAnalyticsCharts();
                 showToast("Succès", "Données synchronisées !", "fa-check-circle", "text-emerald-600");
@@ -407,20 +410,19 @@
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
 
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100');
-                btn.classList.add('text-slate-600');
+                btn.classList.remove('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100', 'shadow-sm', 'font-semibold');
+                btn.classList.add('text-slate-600', 'font-medium');
             });
 
             const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100');
+            activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100', 'shadow-sm', 'font-semibold');
 
             const titles = {
-                'whatsapp': '<i class="fab fa-whatsapp text-emerald-600"></i> Synchronisation WhatsApp',
-                'movement': '<i class="fas fa-right-left text-amber-500"></i> Mouvements',
                 'stock': '<i class="fas fa-table text-blue-500"></i> État du Stock',
-                'tech': '<i class="fas fa-users text-sky-500"></i> Rapport Techniciens',
+                'movement': '<i class="fas fa-right-left text-amber-500"></i> Entrée / Sortie',
                 'analytics': '<i class="fas fa-chart-pie text-emerald-500"></i> Graphiques',
-                'history': '<i class="fas fa-history text-purple-500"></i> Historique'
+                'history': '<i class="fas fa-history text-purple-500"></i> Historique',
+                'iacheck': '<i class="fas fa-robot text-indigo-500"></i> IA Checking'
             };
             document.getElementById('page-title').innerHTML = titles[tabId];
 
@@ -430,9 +432,9 @@
         }
 
         function findBestMatchConsommable(rawInput) {
-            if (!rawInput || !stockData.length) return null;
+            if (!rawInput || !stockData.length) return rawInput;
             const inputClean = rawInput.toLowerCase().replace(/[^a-z0-9]/g, '');
-            let bestMatch = null;
+            let bestMatch = rawInput;
             let highestScore = 0;
 
             stockData.forEach(item => {
@@ -453,75 +455,6 @@
                 }
             });
             return bestMatch;
-        }
-
-        function parseWhatsAppToFields() {
-            isParsingLocked = true;
-            const text = document.getElementById('wa-textarea').value;
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-            let techFound = "";
-            let items = [];
-
-            lines.forEach(line => {
-                if (line.toLowerCase().startsWith("consommable")) return;
-                
-                if (line.startsWith("-") || /\d+/.test(line)) {
-                    const cleanLine = line.replace(/^-/, '').trim();
-                    const qtyMatch = cleanLine.match(/(\d+)\s*(.*)/) || cleanLine.match(/(.*?)\s*:\s*(\d+)/);
-                    
-                    let qty = 1;
-                    let rawName = cleanLine;
-
-                    if (qtyMatch) {
-                        if (!isNaN(parseInt(qtyMatch[1]))) {
-                            qty = parseInt(qtyMatch[1]);
-                            rawName = qtyMatch[2] || cleanLine;
-                        } else if (!isNaN(parseInt(qtyMatch[2]))) {
-                            qty = parseInt(qtyMatch[2]);
-                            rawName = qtyMatch[1] || cleanLine;
-                        }
-                    }
-
-                    rawName = rawName.replace(/^:\s*/, '').trim();
-                    const matchedName = findBestMatchConsommable(rawName) || rawName;
-                    if (rawName.length > 1) { items.push({ name: matchedName, qty: qty }); }
-                } else if (!techFound) {
-                    techFound = line;
-                }
-            });
-
-            if (techFound && !techFound.includes('[')) {
-                document.getElementById('wa-tech-name').value = techFound;
-            }
-
-            const container = document.getElementById('wa-items-container');
-            container.innerHTML = '';
-            if (items.length > 0) {
-                items.forEach(it => addWaItemRow(it.name, it.qty));
-            } else {
-                addWaItemRow();
-            }
-            isParsingLocked = false;
-        }
-
-        function reformulateWhatsAppMessage() {
-            parseWhatsAppToFields();
-            generateWhatsAppFromFields();
-            showToast("Aligné IA", "Le message a été reformulé.", "fa-wand-magic-sparkles", "text-amber-500");
-        }
-
-        function generateWhatsAppFromFields() {
-            if (isParsingLocked) return;
-            const techName = document.getElementById('wa-tech-name').value.trim() || "[Nom Prénom Technicien]";
-            const selects = document.querySelectorAll('.wa-item-select');
-            const qtys = document.querySelectorAll('.wa-item-qty');
-
-            let message = "consommable :\n\n" + techName + "\n";
-            selects.forEach((select, index) => {
-                if (select.value) { message += `- ${select.value} : ${qtys[index].value || 1}\n`; }
-            });
-            document.getElementById('wa-textarea').value = message;
         }
 
         function renderStockTable() {
@@ -563,16 +496,16 @@
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 row.innerHTML = `
-                    <td class="p-2.5 text-center font-bold text-slate-500">${item.reference_id}</td>
-                    <td class="p-2.5 text-slate-800 font-medium">${item.designation}</td>
-                    <td class="p-2.5 text-center text-blue-700 font-semibold bg-blue-50/30">${moba}</td>
-                    <td class="p-2.5 text-center text-amber-700 font-semibold bg-amber-50/30">${nexum}</td>
-                    <td class="p-2.5 text-center text-purple-700 font-semibold bg-purple-50/30">${horizon}</td>
-                    <td class="p-2.5 text-center text-emerald-700 font-bold bg-emerald-50/40" style="${opBadgeStyle}">${totalRow}</td>
-                    <td class="p-2.5 text-center">
-                        ${isAlert ? '<span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-[9px] font-bold">Alerte</span>' : '<span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px]">OK</span>'}
+                    <td class="p-3 text-center font-bold text-slate-500">${item.reference_id}</td>
+                    <td class="p-3 text-slate-800 font-medium">${item.designation}</td>
+                    <td class="p-3 text-center text-blue-700 font-semibold bg-blue-50/30">${moba}</td>
+                    <td class="p-3 text-center text-amber-700 font-semibold bg-amber-50/30">${nexum}</td>
+                    <td class="p-3 text-center text-purple-700 font-semibold bg-purple-50/30">${horizon}</td>
+                    <td class="p-3 text-center text-emerald-700 font-bold bg-emerald-50/40" style="${opBadgeStyle}">${totalRow}</td>
+                    <td class="p-3 text-center">
+                        ${isAlert ? '<span class="px-2 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-[10px] font-bold">Alerte</span>' : '<span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px]">OK</span>'}
                     </td>
-                    <td class="p-2.5 text-slate-500 text-[10px]">${item.unite_details || ''}</td>
+                    <td class="p-3 text-slate-500 text-[10px]">${item.unite_details || ''}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -581,181 +514,7 @@
             document.getElementById('stat-low-stock').innerText = lowStockCount;
         }
 
-        function renderTechReport() {
-            const tbody = document.getElementById('tech-table-body');
-            const nameFilter = document.getElementById('tech-filter-name').value.toLowerCase();
-            tbody.innerHTML = '';
-
-            const techMap = {};
-            historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
-                const tech = h.intervenant || 'Inconnu';
-                if (nameFilter && !tech.toLowerCase().includes(nameFilter)) return;
-
-                const key = `${tech}_${h.designation}`;
-                if (!techMap[key]) {
-                    techMap[key] = { tech: tech, societe: h.societe, secteur: h.secteur, designation: h.designation, totalQty: 0, lastDate: h.horodatage };
-                }
-                techMap[key].totalQty += h.quantite;
-            });
-
-            Object.values(techMap).forEach(item => {
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                row.innerHTML = `
-                    <td class="p-2.5 font-semibold text-slate-800">${item.tech}</td>
-                    <td class="p-2.5 text-blue-600">${item.societe} (${item.secteur})</td>
-                    <td class="p-2.5 text-slate-700">${item.designation}</td>
-                    <td class="p-2.5 text-center font-bold text-amber-600">${item.totalQty}</td>
-                    <td class="p-2.5 text-slate-500 font-mono text-[10px]">${new Date(item.lastDate).toLocaleString()}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function renderAnalyticsCharts() {
-            const opCounts = { orange: 0, free: 0, bouygues: 0, stock_generique: 0 };
-            historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
-                if (opCounts[h.operator] !== undefined) opCounts[h.operator] += h.quantite;
-            });
-
-            const ctxOp = document.getElementById('chartOperator').getContext('2d');
-            if(chartOpInstance) chartOpInstance.destroy();
-            chartOpInstance = new Chart(ctxOp, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Orange', 'Free', 'Bouygues', 'Générique'],
-                    datasets: [{
-                        data: [opCounts.orange, opCounts.free, opCounts.bouygues, opCounts.stock_generique],
-                        backgroundColor: ['#ea580c', '#e11d48', '#16a34a', '#94a3b8']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#475569', font: { size: 10 } } } } }
-            });
-
-            let mobaTot = 0, nexumTot = 0, horizonTot = 0;
-            stockData.forEach(item => {
-                mobaTot += (item.moba_fibre || 0);
-                nexumTot += (item.nexum_co || 0);
-                horizonTot += (item.horizon_groupe || 0);
-            });
-
-            const ctxSoc = document.getElementById('chartSociete').getContext('2d');
-            if(chartSocInstance) chartSocInstance.destroy();
-            chartSocInstance = new Chart(ctxSoc, {
-                type: 'bar',
-                data: {
-                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon Groupe'],
-                    datasets: [{
-                        label: 'Total Articles en Stock',
-                        data: [mobaTot, nexumTot, horizonTot],
-                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#475569' } }, x: { ticks: { color: '#475569' } } }, plugins: { legend: { display: false } } }
-            });
-        }
-
-        function renderHistoryTable() {
-            const tbody = document.getElementById('history-table-body');
-            const period = document.getElementById('filter-period').value;
-            tbody.innerHTML = '';
-
-            const now = new Date();
-            historyData.forEach(h => {
-                const hDate = new Date(h.horodatage);
-                if (period === 'today' && hDate.toDateString() !== now.toDateString()) return;
-                if (period === 'week' && (now - hDate) > 7 * 24 * 3600 * 1000) return;
-                if (period === 'month' && (hDate.getMonth() !== now.getMonth() || hDate.getFullYear() !== now.getFullYear())) return;
-
-                const isOut = h.type_mouvement === 'SORTIE';
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                row.innerHTML = `
-                    <td class="p-2.5 text-slate-500 font-mono text-[10px]">${hDate.toLocaleString()}</td>
-                    <td class="p-2.5"><span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold ${isOut ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}">${h.type_mouvement}</span></td>
-                    <td class="p-2.5 text-blue-600 font-medium">${h.societe || ''} (${h.secteur || ''})</td>
-                    <td class="p-2.5 text-slate-700 font-medium">${h.operator || ''}</td>
-                    <td class="p-2.5 text-slate-900 font-medium">${h.designation}</td>
-                    <td class="p-2.5 text-center font-bold ${isOut ? 'text-rose-600' : 'text-emerald-600'}">${isOut ? '-' : '+'}${h.quantite}</td>
-                    <td class="p-2.5 text-slate-700">${h.intervenant}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function addWaItemRow(itemName = '', itemQty = 1) {
-            const container = document.getElementById('wa-items-container');
-            const rowId = Date.now() + Math.random().toString(36).substring(2, 5);
-            let optionsHtml = [...new Set(stockData.map(item => item.designation))].map(name => `<option value="${name}" ${name === itemName ? 'selected' : ''}>${name}</option>`).join('');
-
-            const row = document.createElement('div');
-            row.id = `wa-row-${rowId}`;
-            row.className = "flex items-center gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-200";
-            row.innerHTML = `
-                <select class="wa-item-select flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-800 focus:outline-none" onchange="generateWhatsAppFromFields()">
-                    <option value="">-- Sélectionner --</option>
-                    ${optionsHtml}
-                </select>
-                <input type="number" min="1" value="${itemQty}" class="wa-item-qty w-16 bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-xs text-slate-800 text-center focus:outline-none" oninput="generateWhatsAppFromFields()">
-                <button onclick="document.getElementById('wa-row-${rowId}').remove(); generateWhatsAppFromFields();" class="text-slate-400 hover:text-rose-600 p-1 text-xs"><i class="fas fa-trash"></i></button>
-            `;
-            container.appendChild(row);
-            if(!itemName) generateWhatsAppFromFields();
-        }
-
-        function resetWaForm() {
-            document.getElementById('wa-items-container').innerHTML = '';
-            document.getElementById('wa-tech-name').value = '';
-            addWaItemRow();
-            generateWhatsAppFromFields();
-        }
-
-        async function submitWaOutflow() {
-            const techName = document.getElementById('wa-tech-name').value.trim();
-            if (!techName) {
-                showToast("Erreur", "Saisir le nom du technicien.", "fa-exclamation-triangle", "text-rose-600");
-                return;
-            }
-            const operator = document.getElementById('wa-op-select').value;
-            const societe = document.getElementById('wa-societe-select').value;
-            const secteur = document.getElementById('wa-secteur-select').value;
-            const selects = document.querySelectorAll('.wa-item-select');
-            const qtys = document.querySelectorAll('.wa-item-qty');
-
-            let count = 0;
-            for (let i = 0; i < selects.length; i++) {
-                const name = selects[i].value;
-                const qty = parseInt(qtys[i].value) || 0;
-
-                if (name && qty > 0) {
-                    const item = stockData.find(s => s.designation === name && s.secteur === secteur);
-                    if (item) {
-                        const newQty = Math.max(0, item[operator] - qty);
-                        const { error: updateErr } = await supabaseClient.from('stock_consommables').update({ [operator]: newQty }).eq('id', item.id);
-
-                        if (!updateErr) {
-                            item[operator] = newQty;
-                            await supabaseClient.from('stock_historique').insert([{
-                                type_mouvement: 'SORTIE',
-                                societe: societe,
-                                secteur: secteur,
-                                operator: operator,
-                                designation: item.designation,
-                                quantite: qty,
-                                intervenant: techName
-                            }]);
-                            count++;
-                        }
-                    }
-                }
-            }
-
-            if (count > 0) {
-                await loadSupabaseData();
-                showToast("Succès", `${count} sorties validées sur Supabase !`, "fa-check-circle", "text-emerald-600");
-            }
-        }
-
+        /* --- RUBRIQUE ENTRÉE / SORTIE (CASES AGRANDIES) --- */
         function addBatchRow() {
             const container = document.getElementById('batch-rows-container');
             const rowId = Date.now() + Math.random().toString(36).substring(2, 5);
@@ -763,29 +522,45 @@
 
             const row = document.createElement('div');
             row.id = `batch-row-${rowId}`;
-            row.className = "flex flex-col sm:grid sm:grid-cols-12 gap-1.5 bg-slate-50 p-2 rounded-xl border border-slate-200 text-xs";
+            row.className = "flex flex-col sm:grid sm:grid-cols-12 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs shadow-sm items-center";
             row.innerHTML = `
-                <div class="sm:col-span-2 flex gap-1">
-                    <select class="batch-type w-1/2 bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800"><option value="SORTIE">SORTIE (-)</option><option value="ENTREE">ENTRÉE (+)</option></select>
-                    <select class="batch-op w-1/2 bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800"><option value="orange">Orange</option><option value="free">Free</option><option value="bouygues">Bouygues</option><option value="stock_generique">Générique</option></select>
+                <div class="sm:col-span-2 flex gap-1.5 w-full">
+                    <select class="batch-type w-1/2 bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-800 focus:outline-none">
+                        <option value="SORTIE">SORTIE (-)</option>
+                        <option value="ENTREE">ENTRÉE (+)</option>
+                    </select>
+                    <select class="batch-op w-1/2 bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="orange">Orange</option>
+                        <option value="free">Free</option>
+                        <option value="bouygues">Bouygues</option>
+                        <option value="stock_generique">Générique</option>
+                    </select>
                 </div>
-                <div class="sm:col-span-2">
-                    <select class="batch-societe w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800"><option value="Moba Fibre">Moba Fibre</option><option value="Nexum & Co">Nexum & Co</option><option value="Horizon Groupe">Horizon Groupe</option></select>
+                <div class="sm:col-span-2 w-full">
+                    <select class="batch-societe w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="Moba Fibre">Moba Fibre</option>
+                        <option value="Nexum & Co">Nexum & Co</option>
+                        <option value="Horizon Groupe">Horizon Groupe</option>
+                    </select>
                 </div>
-                <div class="sm:col-span-2">
-                    <select class="batch-secteur w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800"><option value="Garges">Garges</option><option value="Bordeaux">Bordeaux</option><option value="Orthez">Orthez</option></select>
+                <div class="sm:col-span-2 w-full">
+                    <select class="batch-secteur w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                        <option value="Garges">Garges</option>
+                        <option value="Bordeaux">Bordeaux</option>
+                        <option value="Orthez">Orthez</option>
+                    </select>
                 </div>
-                <div class="sm:col-span-3">
-                    <select class="batch-item w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800">${optionsHtml}</select>
+                <div class="sm:col-span-3 w-full">
+                    <select class="batch-item w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none">${optionsHtml}</select>
                 </div>
-                <div class="sm:col-span-1">
-                    <input type="number" min="1" value="1" class="batch-qty w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800 text-center">
+                <div class="sm:col-span-1 w-full">
+                    <input type="number" min="1" value="1" class="batch-qty w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold text-slate-800 text-center focus:outline-none">
                 </div>
-                <div class="sm:col-span-1">
-                    <input type="text" placeholder="Tech..." class="batch-tech w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] text-slate-800">
+                <div class="sm:col-span-1 w-full">
+                    <input type="text" placeholder="Technicien..." class="batch-tech w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none">
                 </div>
-                <div class="sm:col-span-1 text-right">
-                    <button onclick="document.getElementById('batch-row-${rowId}').remove()" class="text-slate-400 hover:text-rose-600 p-1"><i class="fas fa-trash"></i></button>
+                <div class="sm:col-span-1 text-right w-full">
+                    <button onclick="document.getElementById('batch-row-${rowId}').remove()" class="text-slate-400 hover:text-rose-600 p-2 text-sm"><i class="fas fa-trash"></i></button>
                 </div>
             `;
             container.appendChild(row);
@@ -837,13 +612,241 @@
             }
         }
 
-        function copyWaText() {
-            navigator.clipboard.writeText(document.getElementById('wa-textarea').value);
-            showToast("Copié", "Message copié dans le presse-papier.", "fa-copy", "text-emerald-600");
+        /* --- GRAPHIQUES MODERNISÉS --- */
+        function renderAnalyticsCharts() {
+            const opCounts = { orange: 0, free: 0, bouygues: 0, stock_generique: 0 };
+            historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
+                if (opCounts[h.operator] !== undefined) opCounts[h.operator] += h.quantite;
+            });
+
+            const ctxOp = document.getElementById('chartOperator').getContext('2d');
+            if(chartOpInstance) chartOpInstance.destroy();
+            chartOpInstance = new Chart(ctxOp, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Orange', 'Free', 'Bouygues', 'Générique'],
+                    datasets: [{
+                        data: [opCounts.orange, opCounts.free, opCounts.bouygues, opCounts.stock_generique],
+                        backgroundColor: ['#ea580c', '#e11d48', '#16a34a', '#64748b'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#475569', font: { size: 11, weight: '600' } } } } }
+            });
+
+            let mobaTot = 0, nexumTot = 0, horizonTot = 0;
+            stockData.forEach(item => {
+                mobaTot += (item.moba_fibre || 0);
+                nexumTot += (item.nexum_co || 0);
+                horizonTot += (item.horizon_groupe || 0);
+            });
+
+            document.getElementById('kpi-moba').innerText = mobaTot;
+            document.getElementById('kpi-nexum').innerText = nexumTot;
+            document.getElementById('kpi-horizon').innerText = horizonTot;
+
+            const ctxSoc = document.getElementById('chartSociete').getContext('2d');
+            if(chartSocInstance) chartSocInstance.destroy();
+            chartSocInstance = new Chart(ctxSoc, {
+                type: 'bar',
+                data: {
+                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon Groupe'],
+                    datasets: [{
+                        label: 'Total Articles',
+                        data: [mobaTot, nexumTot, horizonTot],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#475569' } }, x: { ticks: { color: '#475569' } } }, plugins: { legend: { display: false } } }
+            });
         }
 
-        function sendWaDirect() {
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(document.getElementById('wa-textarea').value)}`, '_blank');
+        /* --- HISTORIQUE --- */
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            const period = document.getElementById('filter-period').value;
+            tbody.innerHTML = '';
+
+            const now = new Date();
+            historyData.forEach(h => {
+                const hDate = new Date(h.horodatage);
+                if (period === 'today' && hDate.toDateString() !== now.toDateString()) return;
+                if (period === 'week' && (now - hDate) > 7 * 24 * 3600 * 1000) return;
+                if (period === 'month' && (hDate.getMonth() !== now.getMonth() || hDate.getFullYear() !== now.getFullYear())) return;
+
+                const isOut = h.type_mouvement === 'SORTIE';
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                row.innerHTML = `
+                    <td class="p-3 text-slate-500 font-mono text-[10px]">${hDate.toLocaleString()}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isOut ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}">${h.type_mouvement}</span></td>
+                    <td class="p-3 text-blue-600 font-medium">${h.societe || ''} (${h.secteur || ''})</td>
+                    <td class="p-3 text-slate-700 font-medium">${h.operator || ''}</td>
+                    <td class="p-3 text-slate-900 font-medium">${h.designation}</td>
+                    <td class="p-3 text-center font-bold ${isOut ? 'text-rose-600' : 'text-emerald-600'}">${isOut ? '-' : '+'}${h.quantite}</td>
+                    <td class="p-3 text-slate-700">${h.intervenant}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        /* --- IA CHECKING MULTI-MESSAGES / MULTI-TECHNICIENS --- */
+        function processIaCheckingText() {
+            const rawText = document.getElementById('ia-textarea').value;
+            if (!rawText.trim()) {
+                showToast("Avertissement", "Veuillez coller du texte d'abord.", "fa-exclamation-circle", "text-amber-500");
+                return;
+            }
+
+            parsedIaItems = [];
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+            let currentTech = "Technicien Inconnu";
+            let currentType = "SORTIE"; 
+
+            lines.forEach(line => {
+                const lower = line.toLowerCase();
+                
+                if (lower.includes("retour") || lower.includes("reçu") || lower.includes("entrée") || lower.includes("rendu")) {
+                    currentType = "ENTREE";
+                } else if (lower.includes("sortie") || lower.includes("conso") || lower.includes("pris")) {
+                    currentType = "SORTIE";
+                }
+
+                if (!line.startsWith("-") && !line.includes(":") && !/\d+/.test(line)) {
+                    if (line.length > 2 && !lower.includes("matériel") && !lower.includes("stock")) {
+                        currentTech = line.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();
+                        return;
+                    }
+                }
+
+                if (line.startsWith("-") || /\d+/.test(line)) {
+                    const clean = line.replace(/^-/, '').trim();
+                    const qtyMatch = clean.match(/(\d+)\s*(.*)/) || clean.match(/(.*?)\s*:\s*(\d+)/);
+
+                    let qty = 1;
+                    let rawMat = clean;
+
+                    if (qtyMatch) {
+                        if (!isNaN(parseInt(qtyMatch[1]))) {
+                            qty = parseInt(qtyMatch[1]);
+                            rawMat = qtyMatch[2] || clean;
+                        } else if (!isNaN(parseInt(qtyMatch[2]))) {
+                            qty = parseInt(qtyMatch[2]);
+                            rawMat = qtyMatch[1] || clean;
+                        }
+                    }
+
+                    rawMat = rawMat.replace(/^:\s*/, '').trim();
+                    const bestMatched = findBestMatchConsommable(rawMat);
+
+                    if (rawMat.length > 1) {
+                        parsedIaItems.push({
+                            id: Date.now() + Math.random().toString(36).substring(2, 6),
+                            type: currentType,
+                            tech: currentTech,
+                            rawName: rawMat,
+                            matchedName: bestMatched,
+                            qty: qty
+                        });
+                    }
+                }
+            });
+
+            renderIaCheckingList();
+            showToast("IA Checked", `${parsedIaItems.length} élément(s) extrait(s) !`, "fa-wand-magic-sparkles", "text-indigo-600");
+        }
+
+        function renderIaCheckingList() {
+            const container = document.getElementById('ia-detected-list');
+            document.getElementById('ia-count').innerText = parsedIaItems.length;
+            container.innerHTML = '';
+
+            if (parsedIaItems.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">Aucun matériel détecté dans ce message.</div>`;
+                return;
+            }
+
+            let optionsHtml = [...new Set(stockData.map(i => i.designation))].map(name => `<option value="${name}">${name}</option>`).join('');
+
+            parsedIaItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+                        <div class="flex items-center gap-2">
+                            <select onchange="parsedIaItems[${index}].type=this.value" class="font-bold text-[11px] px-2 py-0.5 rounded-md ${item.type === 'SORTIE' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">
+                                <option value="SORTIE" ${item.type === 'SORTIE' ? 'selected' : ''}>SORTIE (-)</option>
+                                <option value="ENTREE" ${item.type === 'ENTREE' ? 'selected' : ''}>ENTRÉE (+)</option>
+                            </select>
+                            <input type="text" value="${item.tech}" oninput="parsedIaItems[${index}].tech=this.value" class="font-semibold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded-md text-xs">
+                        </div>
+                        <button onclick="parsedIaItems.splice(${index},1); renderIaCheckingList();" class="text-slate-400 hover:text-rose-600"><i class="fas fa-trash"></i></button>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 items-center">
+                        <div class="col-span-2">
+                            <label class="block text-[9px] text-slate-400">Match Officiel Stock :</label>
+                            <select onchange="parsedIaItems[${index}].matchedName=this.value" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] font-medium text-slate-800">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] text-slate-400 text-center">Quantité :</label>
+                            <input type="number" min="1" value="${item.qty}" oninput="parsedIaItems[${index}].qty=parseInt(this.value)||1" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-center font-bold text-xs">
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+                const sel = card.querySelectorAll('select')[1];
+                if (sel) sel.value = item.matchedName;
+            });
+        }
+
+        async function applyIaMovementsToStock() {
+            if (parsedIaItems.length === 0) {
+                showToast("Erreur", "Aucune donnée à appliquer.", "fa-exclamation-triangle", "text-rose-600");
+                return;
+            }
+
+            const societe = document.getElementById('ia-societe').value;
+            const secteur = document.getElementById('ia-secteur').value;
+            const operator = document.getElementById('ia-operator').value;
+
+            let count = 0;
+            for (const item of parsedIaItems) {
+                const stockItem = stockData.find(s => s.designation === item.matchedName && s.secteur === secteur);
+                if (stockItem) {
+                    const currentVal = stockItem[operator] || 0;
+                    const newVal = item.type === 'ENTREE' ? currentVal + item.qty : Math.max(0, currentVal - item.qty);
+
+                    const { error } = await supabaseClient.from('stock_consommables').update({ [operator]: newVal }).eq('id', stockItem.id);
+                    if (!error) {
+                        stockItem[operator] = newVal;
+                        await supabaseClient.from('supabaseClient' in window ? 'stock_historique' : '').insert([{
+                            type_mouvement: item.type,
+                            societe: societe,
+                            secteur: secteur,
+                            operator: operator,
+                            designation: stockItem.designation,
+                            quantite: item.qty,
+                            intervenant: item.tech
+                        }]);
+                        count++;
+                    }
+                }
+            }
+
+            if (count > 0) {
+                await loadSupabaseData();
+                showToast("IA Impact", `${count} article(s) mis à jour en base Supabase !`, "fa-check-circle", "text-emerald-600");
+                parsedIaItems = [];
+                document.getElementById('ia-textarea').value = '';
+                renderIaCheckingList();
+            }
         }
 
         function exportStockCSV() {
@@ -855,7 +858,7 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', `Stock_Supabase_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute('download', `Stock_Pro_Export_${new Date().toISOString().slice(0,10)}.csv`);
             link.click();
         }
 
