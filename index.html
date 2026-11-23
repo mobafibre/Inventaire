@@ -95,7 +95,7 @@
             <h2 id="page-title" class="text-sm md:text-lg font-semibold text-slate-800 flex items-center gap-2 truncate">
                 <i class="fas fa-table text-blue-500"></i> État du Stock
             </h2>
-            
+
             <div class="flex items-center gap-2">
                 <button onclick="loadSupabaseData()" class="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-semibold text-blue-700 flex items-center gap-1.5 transition border border-blue-200 shadow-sm">
                     <i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Actualiser</span>
@@ -111,17 +111,17 @@
             <!-- 1. ÉTAT DU STOCK -->
             <section id="tab-stock" class="tab-content h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-3 md:p-5 shadow-sm flex flex-col h-full">
-                    
+
                     <div class="flex flex-col gap-3 pb-3 border-b border-slate-100">
                         <h3 class="font-bold text-sm md:text-lg text-slate-900 flex items-center gap-2">
                             <i class="fas fa-boxes-stacked text-blue-600"></i> ÉTAT DU STOCK (SUPABASE)
                         </h3>
-                        
+
                         <!-- Filtres Responsive -->
                         <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
                             <select id="filter-type" onchange="handleTypeFilterChange()" class="bg-blue-50/70 border border-blue-200 rounded-xl px-3 py-2 text-xs text-blue-900 font-bold focus:outline-none">
                                 <option value="consommable" selected>Type : Consommables</option>
-                                <option value="materiel">Type : Matériels (À venir)</option>
+                                <option value="materiel">Type : Outillage / Matériels</option>
                                 <option value="">Type : Tous</option>
                             </select>
 
@@ -147,37 +147,23 @@
                         </div>
                     </div>
 
-                    <!-- VUE CONSOMMABLES (Tableau principal avec filtre Opérateur) -->
-                    <div id="consommables-view" class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200 flex flex-col">
+                    <!-- VUE TABLEAU STOCK -->
+                    <div id="stock-table-wrapper" class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200 flex flex-col">
                         <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
                                     <th class="p-3 text-center">N°</th>
                                     <th class="p-3">Désignation</th>
+                                    <th class="p-3 text-center">Catégorie</th>
                                     <th class="p-3 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
                                     <th class="p-3 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
                                     <th class="p-3 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
                                     <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
                                     <th class="p-3 text-center">Alerte</th>
-                                    <th class="p-3">Unité / Détails</th>
                                 </tr>
                             </thead>
                             <tbody id="stock-table-body" class="divide-y divide-slate-100 text-[11px] font-medium text-slate-700"></tbody>
                         </table>
-                    </div>
-
-                    <!-- VUE MATÉRIELS (Emplacement réservé pour une autre table à ajouter plus tard) -->
-                    <div id="materiels-view" class="hidden flex-1 mt-3 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 flex flex-col items-center justify-center p-8 text-center">
-                        <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mb-3 shadow-sm">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-sm md:text-base mb-1">Table Matériels — À ajouter ultérieurement</h4>
-                        <p class="text-xs text-slate-500 max-w-md mb-4">
-                            Les consommables restent gérés avec le filtre opérateur. Cet espace est réservé pour intégrer prochainement votre table dédiée aux matériels.
-                        </p>
-                        <button onclick="document.getElementById('filter-type').value='consommable'; handleTypeFilterChange();" class="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200 shadow-sm transition">
-                            <i class="fas fa-arrow-left mr-1"></i> Retour aux Consommables
-                        </button>
                     </div>
 
                 </div>
@@ -214,7 +200,7 @@
             <!-- 3. GRAPHIQUES -->
             <section id="tab-analytics" class="tab-content hidden h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full overflow-y-auto space-y-5">
-                    
+
                     <div>
                         <h3 class="font-bold text-base md:text-xl text-slate-900 flex items-center gap-2">
                             <i class="fas fa-chart-pie text-emerald-500"></i> Analytiques & Mouvements
@@ -298,7 +284,7 @@
             <!-- 5. IA CHECKING -->
             <section id="tab-iacheck" class="tab-content hidden h-full">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 h-full">
-                    
+
                     <!-- Colonne 1 : Saisie de messages complexes -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-sm h-full">
                         <div class="space-y-3 flex-1 flex flex-col">
@@ -315,9 +301,9 @@
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société</label>
                                     <select id="ia-societe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
-                                        <option value="moba_fibre">Moba Fibre</option>
-                                        <option value="nexum_co">Nexum & Co</option>
-                                        <option value="horizon_groupe">Horizon Groupe</option>
+                                        <option value="moba">Moba Fibre</option>
+                                        <option value="nexum">Nexum & Co</option>
+                                        <option value="orange">Horizon / Orange</option>
                                     </select>
                                 </div>
                                 <div>
@@ -326,6 +312,7 @@
                                         <option value="Garges" selected>Garges</option>
                                         <option value="Bordeaux">Bordeaux</option>
                                         <option value="Orthez">Orthez</option>
+                                        <option value="GENERAL">Général</option>
                                     </select>
                                 </div>
                                 <div>
@@ -340,46 +327,45 @@
                             </div>
 
                             <div class="flex-1 flex flex-col pt-2">
-                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Collez ici les messages WhatsApp bruts (plusieurs techniciens / équipements) :</label>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Collez ici les messages WhatsApp bruts (dates, techniciens, consommables & outillage) :</label>
                                 <textarea id="ia-textarea" class="w-full flex-1 min-h-[220px] bg-slate-50 border border-slate-200 rounded-xl p-3 font-mono text-xs text-slate-700 focus:outline-none transition leading-relaxed resize-none" placeholder="Exemple :
-[10:42, 13/10/2026] Expediteur: Jean Dupont
-- 5 jarretiere
-- 2 pto
-
-Retour Matériel :
-Marc Martin
-- 3 pbo"></textarea>
+[10:42, 13/10/2026] Moba: Consommable : 
+Abderrahmane yeddou : 
+- 1 touret 
+- 10 pto
+- 50 jarretière 
+- 2 pre-cable"></textarea>
                             </div>
                         </div>
 
                         <div class="pt-3 border-t border-slate-100 mt-3">
                             <button onclick="parseWhatsAppText()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
-                                <i class="fas fa-wand-magic-sparkles"></i> Analyser & Parser avec l'IA
+                                <i class="fas fa-wand-magic-sparkles"></i> Analyser & Reformuler avant validation
                             </button>
                         </div>
                     </div>
 
-                    <!-- Colonne 2 : Résultat de l'analyse / Validation -->
+                    <!-- Colonne 2 : Résultat de l'analyse / Reformulation par technicien -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 flex flex-col justify-between shadow-sm h-full">
                         <div class="flex-1 flex flex-col">
                             <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
                                 <h3 class="font-bold text-xs md:text-sm text-slate-900 flex items-center gap-2">
-                                    <i class="fas fa-list-check text-emerald-600"></i> Mouvements Détectés (<span id="ia-count">0</span>)
+                                    <i class="fas fa-list-check text-emerald-600"></i> Reformulation Détectée (<span id="ia-count">0</span>)
                                 </h3>
-                                <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold">Vérification interactive</span>
+                                <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold">Cliquez sur SORTIE/ENTREE pour basculer</span>
                             </div>
 
                             <div id="ia-detected-list" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[250px]">
                                 <div class="text-center py-12 text-slate-400 text-xs">
                                     <i class="fas fa-microchip text-3xl mb-2 text-slate-300"></i>
-                                    <p>Collez des messages à gauche et cliquez sur <b>"Analyser"</b> pour prévisualiser les entrées et sorties de stock.</p>
+                                    <p>Collez des messages à gauche et cliquez sur <b>"Analyser"</b> pour reformuler les entrées/sorties par technicien et date.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pt-3 border-t border-slate-100 mt-3">
                             <button onclick="applyIaMovementsToStock()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
-                                <i class="fas fa-database"></i> Valider et Mettre à jour le Stock
+                                <i class="fas fa-database"></i> Valider et Ajouter au Stock
                             </button>
                         </div>
                     </div>
@@ -390,14 +376,12 @@ Marc Martin
         </div>
     </main>
 
-    <!-- SCRIPT DE LOGIQUE ET DE CORRESPONDANCE -->
     <script>
         const SUPABASE_URL = "https://twweuaqznvgubmwyhdxq.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_rge0QLe1o9m50rHn9QKCDA_ItfPPAn6";
-
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 1. Dictionnaire de mapping : [Nom exact dans votre base Supabase] : [Mots-clés / Fautes possibles]
+        // Dictionnaire Consommables (table stock_consommables)
         const CONSUMABLES_DICTIONARY = {
             "TOURET 500M": ["touret", "tourets", "touret 500m", "touret 500"],
             "PTO": ["pto", "ptos"],
@@ -407,28 +391,77 @@ Marc Martin
             "KIT APPART": ["kit appart", "kit", "kits", "kit appartement"]
         };
 
-        // Liste extensible des matériels (pour édition dans IA Checking et future table matériels)
-        const MATERIELS_LIST = [
-            "SOUDEUSE FIBRE",
-            "CLEAVEUR",
-            "OTDR / REFLECTOMETRE",
-            "STYLO OPTIQUE",
-            "JARRETIERE / CORDONS TEST",
-            "OUTILLAGE ELECTROPORTATIF"
-        ];
+        // Dictionnaire Outillage / Matériels (table stock_outillage)
+        const OUTILLAGE_DICTIONARY = {
+            "CÔNES": ["cone", "cones", "cône", "cônes"],
+            "AIGUILLES": ["aiguille", "aiguilles"],
+            "AIGUILLES 30M": ["aiguille 30m", "aiguilles 30m", "aiguiiles 30m", "aiguille 30"],
+            "AIGUILLES TORUS": ["aiguille torus", "aiguilles torus", "torus"],
+            "PETIT SAC": ["petit sac", "petits sacs", "sac"],
+            "PISTOLET À COLLE": ["pistolet a colle", "pistolet à colle", "pistolet colle"],
+            "CROCHET": ["crochet", "crochets"],
+            "PERCEUSE": ["perceuse", "perceuses"],
+            "PANNEAUX": ["panneau", "panneaux"],
+            "TRIFLASH": ["triflash", "tri-flash"],
+            "CASQUES": ["casque", "casques"],
+            "KITS TOURNEVIS": ["kit tournevis", "kits tournevis", "tournevis"],
+            "LASER": ["laser", "lasers"],
+            "CISEAUX": ["ciseau", "ciseaux"],
+            "GENOUILLÈRES": ["genouillere", "genouilleres", "genouillère", "genouillères"],
+            "LAMPES FRONTALES": ["lampe frontale", "lampes frontales", "frontale"],
+            "GARDE-FOUS": ["garde fou", "garde fous", "garde-fou", "garde-fous"],
+            "MARTEAU À PLAQUE": ["marteau a plaque", "marteau à plaque", "marteau plaque", "marteau"],
+            "PACK DE SCOTCH": ["pack de scotch", "pack scotch", "scotch"],
+            "PAIRES DE CHAUSSURES": ["paire de chaussure", "paires de chaussures", "chaussures", "chaussure"],
+            "ÉCHELLES": ["echelle", "echelles", "échelle", "échelles"]
+        };
 
-        let stockData = [];
+        let consumablesData = [];
+        let outillageData = [];
         let historyData = [];
         let parsedIaItems = [];
-        let editingIaIndex = null;
         let chartOpInstance = null;
         let chartSocInstance = null;
 
         window.onload = async function() {
-            handleTypeFilterChange(false);
             await loadSupabaseData();
             addBatchRow();
         };
+
+        function showToast(title, message, icon = "fa-info-circle", colorClass = "text-blue-500") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            const iconEl = document.getElementById('toastIcon');
+            iconEl.className = `fas ${icon} text-base ${colorClass}`;
+            toast.classList.remove('translate-y-[-150%]', 'md:translate-x-full');
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-150%]', 'md:translate-x-full');
+            }, 3200);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-all";
+            });
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.className = "nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-semibold transition-all bg-blue-50 text-blue-600 border border-blue-100 shadow-sm";
+
+            const titles = {
+                stock: '<i class="fas fa-table text-blue-500"></i> État du Stock',
+                movement: '<i class="fas fa-right-left text-amber-500"></i> Entrée / Sortie',
+                analytics: '<i class="fas fa-chart-pie text-emerald-500"></i> Graphiques & Analytiques',
+                history: '<i class="fas fa-history text-purple-500"></i> Historique des Mouvements',
+                iacheck: '<i class="fas fa-robot text-indigo-500"></i> IA Checking'
+            };
+            document.getElementById('page-title').innerHTML = titles[tabName] || 'Stock Pro';
+
+            if (tabName === 'analytics') renderAnalytics();
+            if (tabName === 'history') renderHistoryTable();
+        }
 
         function normalizeStr(str) {
             return (str || '').toLowerCase()
@@ -445,287 +478,141 @@ Marc Martin
                     const normAlias = normalizeStr(alias);
                     return clean === normAlias || clean.includes(normAlias);
                 })) {
-                    return officialName;
+                    return { designation: officialName, table: 'stock_consommables', category: 'Consommable' };
                 }
             }
-            return null;
-        }
 
-        function getAllSelectableDesignations(currentValue = "") {
-            const consumablesSet = new Set([
-                ...Object.keys(CONSUMABLES_DICTIONARY),
-                ...stockData
-                    .filter(i => !i.categorie || !normalizeStr(i.categorie).includes('materiel'))
-                    .map(i => i.designation)
-                    .filter(Boolean)
-            ]);
-
-            const materielsSet = new Set([
-                ...MATERIELS_LIST,
-                ...stockData
-                    .filter(i => i.categorie && normalizeStr(i.categorie).includes('materiel'))
-                    .map(i => i.designation)
-                    .filter(Boolean)
-            ]);
-
-            let html = `<option value="">-- Choisir un article --</option>`;
-
-            html += `<optgroup label="Consommables">`;
-            consumablesSet.forEach(name => {
-                const selected = currentValue === name ? "selected" : "";
-                html += `<option value="${name}" data-kind="consommable" ${selected}>${name}</option>`;
-            });
-            html += `</optgroup>`;
-
-            html += `<optgroup label="Matériels">`;
-            materielsSet.forEach(name => {
-                const selected = currentValue === name ? "selected" : "";
-                html += `<option value="${name}" data-kind="materiel" ${selected}>${name}</option>`;
-            });
-            html += `</optgroup>`;
-
-            return html;
-        }
-
-        function handleTypeFilterChange(shouldRender = true) {
-            const typeVal = document.getElementById('filter-type').value;
-            const opSelect = document.getElementById('filter-operateur');
-            const searchInput = document.getElementById('stock-search');
-            const consommablesView = document.getElementById('consommables-view');
-            const materielsView = document.getElementById('materiels-view');
-
-            if (typeVal === 'materiel') {
-                consommablesView.classList.add('hidden');
-                materielsView.classList.remove('hidden');
-                opSelect.disabled = true;
-                opSelect.classList.add('opacity-50', 'cursor-not-allowed');
-                searchInput.disabled = true;
-                searchInput.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                consommablesView.classList.remove('hidden');
-                materielsView.classList.add('hidden');
-                opSelect.disabled = false;
-                opSelect.classList.remove('opacity-50', 'cursor-not-allowed');
-                searchInput.disabled = false;
-                searchInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            for (const [officialName, aliases] of Object.entries(OUTILLAGE_DICTIONARY)) {
+                if (aliases.some(alias => {
+                    const normAlias = normalizeStr(alias);
+                    return clean === normAlias || clean.includes(normAlias);
+                })) {
+                    return { designation: officialName, table: 'stock_outillage', category: 'Outillage' };
+                }
             }
 
-            if (shouldRender) renderStockTable();
-        }
-
-        function showToast(title, message, iconClass = "fa-info-circle", colorClass = "text-blue-500") {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastTitle').textContent = title;
-            document.getElementById('toastMessage').textContent = message;
-            const icon = document.getElementById('toastIcon');
-            icon.className = `fas text-base ${iconClass} ${colorClass}`;
-
-            toast.classList.remove('translate-y-[-150%]', 'md:translate-x-full');
-            toast.classList.add('translate-y-0', 'md:translate-x-0');
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-[-150%]', 'md:translate-x-full');
-                toast.classList.remove('translate-y-0', 'md:translate-x-0');
-            }, 3000);
+            return null;
         }
 
         async function loadSupabaseData() {
             try {
-                showToast("Chargement", "Récupération des données Supabase...", "fa-spinner fa-spin", "text-blue-600");
-                const { data: stock, error: stockErr } = await supabaseClient
-                    .from('stock_consommables')
-                    .select('*')
-                    .order('reference_id', { ascending: true });
-                if (stockErr) throw stockErr;
-                stockData = stock || [];
+                const [consRes, outRes, histRes] = await Promise.all([
+                    supabaseClient.from('stock_consommables').select('*').order('id', { ascending: true }),
+                    supabaseClient.from('stock_outillage').select('*').order('id', { ascending: true }),
+                    supabaseClient.from('stock_historique').select('*').order('id', { ascending: false }).limit(300)
+                ]);
 
-                const { data: hist, error: histErr } = await supabaseClient
-                    .from('stock_historique')
-                    .select('*')
-                    .order('horodatage', { ascending: false })
-                    .limit(100);
-                if (histErr) throw histErr;
-                historyData = hist || [];
+                if (!consRes.error) consumablesData = (consRes.data || []).map(i => ({ ...i, _table: 'stock_consommables', _cat: 'Consommable' }));
+                if (!outRes.error) outillageData = (outRes.data || []).map(i => ({ ...i, _table: 'stock_outillage', _cat: 'Outillage' }));
+                if (!histRes.error) historyData = histRes.data || [];
 
                 renderStockTable();
                 renderHistoryTable();
-                renderAnalyticsCharts();
-                updateBatchDropdowns();
-                if (parsedIaItems.length) renderIaDetectedList();
-                showToast("Succès", "Données synchronisées !", "fa-check-circle", "text-emerald-600");
+                updateStats();
             } catch (err) {
                 console.error(err);
-                showToast("Erreur", "Problème de connexion Supabase.", "fa-exclamation-triangle", "text-rose-600");
+                showToast("Erreur", "Problème de chargement Supabase.", "fa-exclamation-triangle", "text-rose-600");
             }
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100', 'shadow-sm', 'font-semibold');
-                btn.classList.add('text-slate-600', 'font-medium');
-            });
-
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.add('bg-blue-50', 'text-blue-600', 'border', 'border-blue-100', 'shadow-sm', 'font-semibold');
-
-            const titles = {
-                'stock': '<i class="fas fa-table text-blue-500"></i> État du Stock',
-                'movement': '<i class="fas fa-right-left text-amber-500"></i> Entrée / Sortie',
-                'analytics': '<i class="fas fa-chart-pie text-emerald-500"></i> Graphiques',
-                'history': '<i class="fas fa-history text-purple-500"></i> Historique',
-                'iacheck': '<i class="fas fa-robot text-indigo-500"></i> IA Checking'
-            };
-            document.getElementById('page-title').innerHTML = titles[tabId];
-
-            if (tabId === 'analytics') {
-                setTimeout(renderAnalyticsCharts, 150);
-            }
+        function getCombinedStock() {
+            const typeFilter = document.getElementById('filter-type')?.value || '';
+            if (typeFilter === 'consommable') return consumablesData;
+            if (typeFilter === 'materiel') return outillageData;
+            return [...consumablesData, ...outillageData];
         }
 
-        // 1. RENDU TABLEAU DE STOCK
+        function handleTypeFilterChange() {
+            renderStockTable();
+        }
+
         function renderStockTable() {
-            const typeVal = document.getElementById('filter-type').value;
-            if (typeVal === 'materiel') return;
-
             const tbody = document.getElementById('stock-table-body');
-            const search = normalizeStr(document.getElementById('stock-search').value);
-            const sectorFilter = document.getElementById('filter-secteur').value;
-            const opFilter = document.getElementById('filter-operateur').value;
+            const secteur = document.getElementById('filter-secteur')?.value || '';
+            const search = normalizeStr(document.getElementById('stock-search')?.value || '');
+
+            let list = getCombinedStock();
+            if (secteur) {
+                list = list.filter(item => !item.secteur || item.secteur === secteur || item.secteur === 'GENERAL');
+            }
+            if (search) {
+                list = list.filter(item => normalizeStr(item.designation).includes(search));
+            }
+
             tbody.innerHTML = '';
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Aucun article trouvé pour ces filtres.</td></tr>`;
+                return;
+            }
 
-            let lowStockCount = 0;
-            let totalRefs = 0;
+            list.forEach((item, idx) => {
+                const moba = Number(item.moba ?? item.moba_fibre ?? 0);
+                const nexum = Number(item.nexum ?? item.nexum_co ?? 0);
+                const horizon = Number(item.orange ?? item.horizon_groupe ?? 0);
+                const total = moba + nexum + horizon;
+                const seuil = Number(item.seuil_alerte ?? 2);
+                const isLow = total <= seuil;
 
-            stockData.forEach((item, index) => {
-                if (typeVal === 'consommable' && item.categorie && normalizeStr(item.categorie).includes('materiel')) return;
-                if (sectorFilter && item.secteur !== sectorFilter) return;
-                if (search && !normalizeStr(item.designation).includes(search)) return;
-
-                let moba = item.moba_fibre || 0;
-                let nexum = item.nexum_co || 0;
-                let horizon = item.horizon_groupe || 0;
-
-                if (opFilter) {
-                    const opQty = item[opFilter] || 0;
-                    moba = opQty;
-                    nexum = 0;
-                    horizon = 0;
-                }
-                
-                const totalRow = moba + nexum + horizon + (!opFilter ? ((item.free || 0) + (item.orange || 0) + (item.bouygues || 0) + (item.stock_generique || 0)) : 0);
-                
-                totalRefs++;
-                const isAlert = totalRow <= 3;
-                if (isAlert) lowStockCount++;
-
-                let opBadgeStyle = "";
-                if (opFilter === 'bouygues') opBadgeStyle = "color: #16a34a; font-weight: bold;";
-                else if (opFilter === 'free') opBadgeStyle = "color: #e11d48; font-weight: bold;";
-                else if (opFilter === 'orange') opBadgeStyle = "color: #ea580c; font-weight: bold;";
-
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                row.innerHTML = `
-                    <td class="p-3 text-center text-slate-400 font-mono">${item.reference_id || index + 1}</td>
-                    <td class="p-3 font-semibold text-slate-800">${item.designation}</td>
-                    <td class="p-3 text-center bg-blue-50/30 font-bold text-blue-700" style="${opBadgeStyle}">${moba}</td>
-                    <td class="p-3 text-center bg-amber-50/30 font-bold text-amber-700">${nexum}</td>
-                    <td class="p-3 text-center bg-purple-50/30 font-bold text-purple-700">${horizon}</td>
-                    <td class="p-3 text-center bg-emerald-50/40 font-extrabold text-emerald-700">${totalRow}</td>
-                    <td class="p-3 text-center">
-                        ${isAlert 
-                            ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold"><i class="fas fa-exclamation-circle"></i> Bas</span>' 
-                            : '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">OK</span>'}
-                    </td>
-                    <td class="p-3 text-slate-500 text-[10px]">${item.unite || 'Unité'} • ${item.secteur || 'Garges'}</td>
+                const tr = document.createElement('tr');
+                tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-400">${idx + 1}</td>
+                    <td class="p-3 font-bold text-slate-800">${item.designation}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item._cat === 'Outillage' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}">${item._cat}</span></td>
+                    <td class="p-3 text-center font-semibold text-blue-700 bg-blue-50/30">${moba}</td>
+                    <td class="p-3 text-center font-semibold text-amber-700 bg-amber-50/30">${nexum}</td>
+                    <td class="p-3 text-center font-semibold text-purple-700 bg-purple-50/30">${horizon}</td>
+                    <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
+                    <td class="p-3 text-center">${isLow ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">Stock Bas</span>' : '<span class="text-slate-400 text-[10px]">OK</span>'}</td>
                 `;
-                tbody.appendChild(row);
+                tbody.appendChild(tr);
             });
-
-            document.getElementById('stat-total-refs').textContent = totalRefs;
-            document.getElementById('stat-low-stock').textContent = lowStockCount;
         }
 
-        // EXPORT CSV
-        function exportStockCSV() {
-            if (!stockData.length) return showToast("Info", "Aucune donnée à exporter", "fa-info-circle", "text-amber-500");
-            const headers = ["Ref", "Secteur", "Designation", "Moba Fibre", "Nexum & Co", "Horizon Groupe", "Orange", "Free", "Bouygues", "Generique"];
-            const rows = stockData.map(i => [
-                i.reference_id, i.secteur, `"${i.designation}"`, i.moba_fibre || 0, i.nexum_co || 0, i.horizon_groupe || 0, i.orange || 0, i.free || 0, i.bouygues || 0, i.stock_generique || 0
-            ]);
-            const csvContent = "data:text/csv;charset=utf-8," + [headers.join(";"), ...rows.map(e => e.join(";"))].join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `export_stock_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        function updateStats() {
+            const all = [...consumablesData, ...outillageData];
+            document.getElementById('stat-total-refs').textContent = all.length;
+            const lowCount = all.filter(item => {
+                const total = Number(item.moba ?? 0) + Number(item.nexum ?? 0) + Number(item.orange ?? 0);
+                return total <= Number(item.seuil_alerte ?? 2);
+            }).length;
+            document.getElementById('stat-low-stock').textContent = lowCount;
         }
 
-        // 2. FORMULAIRE ENTRÉE / SORTIE
-        function getDesignationOptionsHTML() {
-            const uniqueNames = [...new Set(stockData.map(i => i.designation))];
-            return uniqueNames.map(name => `<option value="${name}">${name}</option>`).join('');
-        }
-
-        function updateBatchDropdowns() {
-            const options = getDesignationOptionsHTML();
-            document.querySelectorAll('.batch-designation').forEach(select => {
-                const currentVal = select.value;
-                select.innerHTML = options;
-                if (currentVal) select.value = currentVal;
-            });
+        function getAllOptionsHtml() {
+            const consOpts = Object.keys(CONSUMABLES_DICTIONARY).map(k => `<option value="${k}" data-table="stock_consommables">${k}</option>`).join('');
+            const outOpts = Object.keys(OUTILLAGE_DICTIONARY).map(k => `<option value="${k}" data-table="stock_outillage">${k}</option>`).join('');
+            return `
+                <option value="">-- Choisir un article --</option>
+                <optgroup label="Consommables">${consOpts}</optgroup>
+                <optgroup label="Outillage / Matériels">${outOpts}</optgroup>
+            `;
         }
 
         function addBatchRow() {
             const container = document.getElementById('batch-rows-container');
-            const rowId = 'row-' + Date.now() + Math.floor(Math.random() * 100);
-            const div = document.createElement('div');
-            div.id = rowId;
-            div.className = "grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-200";
-            div.innerHTML = `
-                <div class="sm:col-span-2">
-                    <select class="batch-type w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs font-bold">
-                        <option value="SORTIE" class="text-rose-600">Sortie (-)</option>
-                        <option value="ENTREE" class="text-emerald-600">Entrée (+)</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-2">
-                    <select class="batch-secteur w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs">
-                        <option value="Garges">Garges</option>
-                        <option value="Bordeaux">Bordeaux</option>
-                        <option value="Orthez">Orthez</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-2">
-                    <select class="batch-societe w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs">
-                        <option value="moba_fibre">Moba Fibre</option>
-                        <option value="nexum_co">Nexum & Co</option>
-                        <option value="horizon_groupe">Horizon Groupe</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-3">
-                    <select class="batch-designation w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs font-medium">
-                        ${getDesignationOptionsHTML()}
-                    </select>
-                </div>
-                <div class="sm:col-span-1">
-                    <input type="number" min="1" value="1" class="batch-qty w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs text-center font-bold">
-                </div>
-                <div class="sm:col-span-1">
-                    <input type="text" placeholder="Tech..." class="batch-tech w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs">
-                </div>
-                <div class="sm:col-span-1 text-right">
-                    <button onclick="document.getElementById('${rowId}').remove()" class="text-rose-500 hover:text-rose-700 p-2">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+            const row = document.createElement('div');
+            row.className = "batch-row grid grid-cols-1 sm:grid-cols-6 gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 items-center text-xs";
+            row.innerHTML = `
+                <select class="row-type bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-bold">
+                    <option value="SORTIE">SORTIE (-)</option>
+                    <option value="ENTREE">ENTREE (+)</option>
+                </select>
+                <select class="row-societe bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
+                    <option value="moba">Moba Fibre</option>
+                    <option value="nexum">Nexum & Co</option>
+                    <option value="orange">Horizon / Orange</option>
+                </select>
+                <select class="row-designation sm:col-span-2 bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
+                    ${getAllOptionsHtml()}
+                </select>
+                <input type="number" min="1" value="1" class="row-qty bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-bold text-center" placeholder="Qté">
+                <div class="flex items-center gap-1.5">
+                    <input type="text" class="row-tech flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-2" placeholder="Technicien">
+                    <button onclick="this.closest('.batch-row').remove()" class="text-slate-400 hover:text-rose-600 p-2"><i class="fas fa-trash"></i></button>
                 </div>
             `;
-            container.appendChild(div);
+            container.appendChild(row);
         }
 
         function clearBatchRows() {
@@ -734,150 +621,37 @@ Marc Martin
         }
 
         async function submitBatchMovements() {
-            const rows = document.querySelectorAll('#batch-rows-container > div');
-            if (!rows.length) return;
+            const rows = document.querySelectorAll('.batch-row');
+            const secteur = document.getElementById('filter-secteur')?.value || 'Garges';
+            let count = 0;
 
-            showToast("Traitement", "Mise à jour du stock en cours...", "fa-spinner fa-spin", "text-blue-600");
+            for (const row of rows) {
+                const type = row.querySelector('.row-type').value;
+                const societe = row.querySelector('.row-societe').value;
+                const selectEl = row.querySelector('.row-designation');
+                const designation = selectEl.value;
+                const table = selectEl.selectedOptions[0]?.dataset?.table || 'stock_consommables';
+                const qty = parseInt(row.querySelector('.row-qty').value, 10);
+                const tech = row.querySelector('.row-tech').value.trim() || 'Non spécifié';
 
-            try {
-                for (const row of rows) {
-                    const type = row.querySelector('.batch-type').value;
-                    const secteur = row.querySelector('.batch-secteur').value;
-                    const societe = row.querySelector('.batch-societe').value;
-                    const designation = row.querySelector('.batch-designation').value;
-                    const qty = parseInt(row.querySelector('.batch-qty').value) || 0;
-                    const intervenant = row.querySelector('.batch-tech').value || "Manuel";
+                if (!designation || !qty || qty <= 0) continue;
 
-                    if (qty <= 0 || !designation) continue;
-
-                    const targetItem = stockData.find(i => i.designation === designation && i.secteur === secteur);
-                    if (targetItem) {
-                        const currentVal = targetItem[societe] || 0;
-                        const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
-                        await supabaseClient.from('stock_consommables').update({ [societe]: newVal }).eq('id', targetItem.id);
-                    }
-
-                    await supabaseClient.from('stock_historique').insert([{
-                        type_mouvement: type,
-                        societe: societe,
-                        operateur: 'stock_generique',
-                        designation: designation,
-                        quantite: qty,
-                        intervenant: intervenant,
-                        secteur: secteur
-                    }]);
-                }
-
-                clearBatchRows();
-                await loadSupabaseData();
-                showToast("Validé", "Stock et historique mis à jour !", "fa-check-circle", "text-emerald-600");
-            } catch (e) {
-                console.error(e);
-                showToast("Erreur", "Échec de l'enregistrement.", "fa-exclamation-triangle", "text-rose-600");
-            }
-        }
-
-        // 3. GRAPHIQUES & KPI
-        function renderAnalyticsCharts() {
-            let totalMoba = 0, totalNexum = 0, totalHorizon = 0;
-            let opStats = { orange: 0, free: 0, bouygues: 0, stock_generique: 0 };
-
-            stockData.forEach(item => {
-                totalMoba += (item.moba_fibre || 0);
-                totalNexum += (item.nexum_co || 0);
-                totalHorizon += (item.horizon_groupe || 0);
-            });
-
-            historyData.forEach(h => {
-                if (h.type_mouvement === 'SORTIE') {
-                    const op = (h.operateur || 'stock_generique').toLowerCase();
-                    if (opStats[op] !== undefined) opStats[op] += (h.quantite || 0);
-                    else opStats.stock_generique += (h.quantite || 0);
-                }
-            });
-
-            document.getElementById('kpi-moba').textContent = totalMoba;
-            document.getElementById('kpi-nexum').textContent = totalNexum;
-            document.getElementById('kpi-horizon').textContent = totalHorizon;
-
-            const ctxOp = document.getElementById('chartOperator');
-            if (ctxOp) {
-                if (chartOpInstance) chartOpInstance.destroy();
-                chartOpInstance = new Chart(ctxOp, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Orange', 'Free', 'Bouygues', 'Générique'],
-                        datasets: [{
-                            data: [opStats.orange, opStats.free, opStats.bouygues, opStats.stock_generique],
-                            backgroundColor: ['#f97316', '#e11d48', '#16a34a', '#64748b'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
+                await applySingleMovement({ type, societe, designation, table, qty, tech, secteur, dateStr: new Date().toLocaleDateString('fr-FR') });
+                count++;
             }
 
-            const ctxSoc = document.getElementById('chartSociete');
-            if (ctxSoc) {
-                if (chartSocInstance) chartSocInstance.destroy();
-                chartSocInstance = new Chart(ctxSoc, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Moba Fibre', 'Nexum & Co', 'Horizon Groupe'],
-                        datasets: [{
-                            label: 'Quantité en Stock',
-                            data: [totalMoba, totalNexum, totalHorizon],
-                            backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
-                            borderRadius: 8
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                });
-            }
+            if (!count) return showToast("Attention", "Sélectionnez au moins un article valide.", "fa-exclamation-triangle", "text-amber-600");
+            clearBatchRows();
+            await loadSupabaseData();
+            showToast("Succès", `${count} mouvement(s) enregistré(s).`, "fa-check-circle", "text-emerald-600");
         }
 
-        // 4. HISTORIQUE
-        function renderHistoryTable() {
-            const tbody = document.getElementById('history-table-body');
-            const period = document.getElementById('filter-period').value;
-            tbody.innerHTML = '';
-
-            const now = new Date();
-            historyData.forEach(item => {
-                const dateObj = new Date(item.horodatage || item.created_at);
-                if (period === 'today' && dateObj.toDateString() !== now.toDateString()) return;
-                if (period === 'week' && (now - dateObj) > 7 * 86400000) return;
-                if (period === 'month' && (dateObj.getMonth() !== now.getMonth() || dateObj.getFullYear() !== now.getFullYear())) return;
-
-                const isEntree = item.type_mouvement === 'ENTREE';
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50";
-                tr.innerHTML = `
-                    <td class="p-3 text-slate-500">${dateObj.toLocaleDateString('fr-FR')} ${dateObj.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</td>
-                    <td class="p-3">
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
-                            ${item.type_mouvement}
-                        </span>
-                    </td>
-                    <td class="p-3 font-semibold">${item.societe || '-'}</td>
-                    <td class="p-3 uppercase text-[10px]">${item.operateur || '-'}</td>
-                    <td class="p-3 font-medium text-slate-800">${item.designation}</td>
-                    <td class="p-3 text-center font-bold">${isEntree ? '+' : '-'}${item.quantite}</td>
-                    <td class="p-3 text-slate-600">${item.intervenant || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 5. IA CHECKING - Fonction principale d'analyse du texte WhatsApp
+        // Parseur WhatsApp (Date, Technicien, Consommables + Outillage)
         function parseWhatsAppText() {
             const rawText = document.getElementById('ia-textarea').value;
-            if (!rawText.trim()) {
-                return showToast("Attention", "Collez un message WhatsApp avant de lancer l'analyse.", "fa-exclamation-circle", "text-amber-500");
-            }
+            if (!rawText.trim()) return;
 
             parsedIaItems = [];
-            editingIaIndex = null;
             const lines = rawText.split('\n');
 
             let currentDate = new Date().toLocaleDateString('fr-FR');
@@ -892,61 +666,59 @@ Marc Martin
                 line = line.trim();
                 if (!line) continue;
 
-                let contentToAnalyze = line;
-
+                let content = line;
                 const waMatch = line.match(waHeaderRegex);
                 if (waMatch) {
                     currentDate = waMatch[2];
-                    contentToAnalyze = waMatch[4].trim();
-
-                    const lowerContent = normalizeStr(contentToAnalyze);
-                    if (lowerContent.includes('entree') || lowerContent.includes('retour') || lowerContent.includes('appro')) {
-                        currentType = "ENTREE";
-                    } else {
-                        currentType = "SORTIE";
-                    }
+                    content = waMatch[4].trim();
+                    const normC = normalizeStr(content);
+                    currentType = (normC.includes('entree') || normC.includes('retour') || normC.includes('appro')) ? "ENTREE" : "SORTIE";
                 }
 
-                if (!contentToAnalyze) continue;
+                if (!content) continue;
 
-                const matchFirst = contentToAnalyze.match(itemQtyFirstRegex);
-                const matchLast = contentToAnalyze.match(itemQtyLastRegex);
+                const matchFirst = content.match(itemQtyFirstRegex);
+                const matchLast = content.match(itemQtyLastRegex);
 
                 if (matchFirst) {
                     const qty = parseInt(matchFirst[1], 10);
                     const rawItem = matchFirst[2].trim();
-                    const officialDesignation = matchDesignation(rawItem);
+                    const matched = matchDesignation(rawItem);
 
                     parsedIaItems.push({
                         date: currentDate,
                         tech: currentTech,
                         type: currentType,
-                        qty: qty,
+                        qty,
                         rawName: rawItem,
-                        designation: officialDesignation || `⚠️ INCONNU (${rawItem})`,
-                        kind: officialDesignation ? 'consommable' : 'inconnu',
-                        isValid: !!officialDesignation
-                    });
-                    continue;
-                } else if (matchLast && !normalizeStr(matchLast[1]).includes('conso')) {
-                    const rawItem = matchLast[1].trim();
-                    const qty = parseInt(matchLast[2], 10);
-                    const officialDesignation = matchDesignation(rawItem);
-
-                    parsedIaItems.push({
-                        date: currentDate,
-                        tech: currentTech,
-                        type: currentType,
-                        qty: qty,
-                        rawName: rawItem,
-                        designation: officialDesignation || `⚠️ INCONNU (${rawItem})`,
-                        kind: officialDesignation ? 'consommable' : 'inconnu',
-                        isValid: !!officialDesignation
+                        designation: matched ? matched.designation : `⚠️ INCONNU (${rawItem})`,
+                        table: matched ? matched.table : 'stock_consommables',
+                        category: matched ? matched.category : 'Inconnu',
+                        isValid: !!matched
                     });
                     continue;
                 }
 
-                let potentialTech = contentToAnalyze
+                if (matchLast && !normalizeStr(matchLast[1]).includes('conso')) {
+                    const rawItem = matchLast[1].trim();
+                    const qty = parseInt(matchLast[2], 10);
+                    const matched = matchDesignation(rawItem);
+
+                    parsedIaItems.push({
+                        date: currentDate,
+                        tech: currentTech,
+                        type: currentType,
+                        qty,
+                        rawName: rawItem,
+                        designation: matched ? matched.designation : `⚠️ INCONNU (${rawItem})`,
+                        table: matched ? matched.table : 'stock_consommables',
+                        category: matched ? matched.category : 'Inconnu',
+                        isValid: !!matched
+                    });
+                    continue;
+                }
+
+                let potentialTech = content
                     .replace(/consommables?\s*:?/gi, '')
                     .replace(/conso\s*:?/gi, '')
                     .replace(/\(.*?\)/g, '')
@@ -964,47 +736,13 @@ Marc Martin
             renderIaDetectedList();
         }
 
-        function openIaEdit(idx) {
-            editingIaIndex = editingIaIndex === idx ? null : idx;
-            renderIaDetectedList();
-        }
-
-        function saveIaEdit(idx) {
-            const selectEl = document.getElementById(`ia-edit-designation-${idx}`);
-            const typeEl = document.getElementById(`ia-edit-type-${idx}`);
-            const qtyEl = document.getElementById(`ia-edit-qty-${idx}`);
-            const techEl = document.getElementById(`ia-edit-tech-${idx}`);
-
-            const chosenDesignation = selectEl.value;
-            const selectedOption = selectEl.options[selectEl.selectedIndex];
-            const chosenKind = selectedOption ? (selectedOption.dataset.kind || 'consommable') : 'consommable';
-            const chosenType = typeEl.value;
-            const chosenQty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
-            const chosenTech = (techEl.value || '').trim() || parsedIaItems[idx].tech || 'Inconnu';
-
-            if (!chosenDesignation) {
-                return showToast("Attention", "Sélectionnez un consommable ou un matériel.", "fa-exclamation-circle", "text-amber-500");
-            }
-
-            parsedIaItems[idx].designation = chosenDesignation;
-            parsedIaItems[idx].kind = chosenKind;
-            parsedIaItems[idx].type = chosenType;
-            parsedIaItems[idx].qty = chosenQty;
-            parsedIaItems[idx].tech = chosenTech;
-            parsedIaItems[idx].isValid = true;
-
-            editingIaIndex = null;
-            renderIaDetectedList();
-            showToast("Modifié", "Mouvement mis à jour.", "fa-check", "text-emerald-600");
-        }
-
         function renderIaDetectedList() {
             const container = document.getElementById('ia-detected-list');
             document.getElementById('ia-count').textContent = parsedIaItems.length;
             container.innerHTML = '';
 
             if (!parsedIaItems.length) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Aucun article détecté. Collez votre export WhatsApp et lancez l'analyse.</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Aucun article détecté.</div>`;
                 return;
             }
 
@@ -1029,66 +767,28 @@ Marc Martin
 
                 items.forEach(item => {
                     const isEntree = item.type === 'ENTREE';
-                    const isEditing = editingIaIndex === item.originalIndex;
-                    const badgeStyle = !item.isValid 
-                        ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                    const badgeStyle = !item.isValid
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
                         : (isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700');
 
-                    const kindTag = item.kind === 'materiel'
-                        ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">Matériel</span>`
-                        : (item.isValid ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">Consommable</span>` : '');
-
                     html += `
-                        <div class="p-2.5 text-xs ${!item.isValid ? 'bg-amber-50/50' : ''}">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="space-y-0.5 min-w-0">
-                                    <div class="flex flex-wrap items-center gap-1.5">
-                                        <button onclick="toggleItemType(${item.originalIndex})" title="Cliquer pour inverser Entrée/Sortie" class="px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer ${badgeStyle}">
-                                            ${item.type}
-                                        </button>
-                                        <span class="font-bold text-slate-800 truncate">${item.designation}</span>
-                                        ${kindTag}
-                                    </div>
-                                    <p class="text-[10px] text-slate-400">Texte brut : "${item.rawName}"</p>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <span class="font-extrabold text-sm ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${item.qty}</span>
-                                    <button onclick="openIaEdit(${item.originalIndex})" title="Modifier ce mouvement" class="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition">
-                                        <i class="fas fa-pen"></i>
+                        <div class="p-2.5 flex items-center justify-between gap-2 text-xs ${!item.isValid ? 'bg-amber-50/50' : ''}">
+                            <div class="space-y-0.5">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button onclick="toggleItemType(${item.originalIndex})" title="Cliquer pour basculer Entrée/Sortie" class="px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer ${badgeStyle}">
+                                        ${item.type}
                                     </button>
-                                    <button onclick="parsedIaItems.splice(${item.originalIndex}, 1); if (editingIaIndex === ${item.originalIndex}) editingIaIndex = null; renderIaDetectedList();" title="Supprimer" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                    <span class="font-bold text-slate-800">${item.designation}</span>
+                                    <span class="text-[10px] text-slate-400">[${item.category}]</span>
                                 </div>
+                                <p class="text-[10px] text-slate-400">Brut : "${item.rawName}"</p>
                             </div>
-
-                            ${isEditing ? `
-                                <div class="mt-2.5 pt-2.5 border-t border-slate-200 bg-slate-50 p-2.5 rounded-lg grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-                                    <div class="sm:col-span-5">
-                                        <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">Article (Conso / Matériel)</label>
-                                        <select id="ia-edit-designation-${item.originalIndex}" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-slate-800">
-                                            ${getAllSelectableDesignations(item.isValid ? item.designation : "")}
-                                        </select>
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">Sens</label>
-                                        <select id="ia-edit-type-${item.originalIndex}" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-[11px] font-bold">
-                                            <option value="SORTIE" ${item.type === 'SORTIE' ? 'selected' : ''}>SORTIE</option>
-                                            <option value="ENTREE" ${item.type === 'ENTREE' ? 'selected' : ''}>ENTREE</option>
-                                        </select>
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">Qté</label>
-                                        <input type="number" min="1" id="ia-edit-qty-${item.originalIndex}" value="${item.qty}" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-[11px] text-center font-bold">
-                                    </div>
-                                    <div class="sm:col-span-3 flex items-end gap-1 pt-3 sm:pt-4">
-                                        <input type="text" id="ia-edit-tech-${item.originalIndex}" value="${item.tech}" placeholder="Technicien" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-[11px]">
-                                        <button onclick="saveIaEdit(${item.originalIndex})" title="Enregistrer" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold shrink-0">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            ` : ''}
+                            <div class="flex items-center gap-2.5">
+                                <span class="font-extrabold text-sm ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${item.qty}</span>
+                                <button onclick="parsedIaItems.splice(${item.originalIndex}, 1); renderIaDetectedList();" class="text-slate-400 hover:text-rose-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
@@ -1104,55 +804,62 @@ Marc Martin
             renderIaDetectedList();
         }
 
+        async function applySingleMovement({ type, societe, designation, table, qty, tech, secteur, dateStr }) {
+            const sourceList = table === 'stock_outillage' ? outillageData : consumablesData;
+            const targetItem = sourceList.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
+
+            if (targetItem) {
+                const currentVal = Number(targetItem[societe] ?? 0);
+                const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
+                await supabaseClient.from(table).update({ [societe]: newVal }).eq('id', targetItem.id);
+            }
+
+            let isoDate = new Date().toISOString().split('T')[0];
+            if (dateStr && dateStr.includes('/')) {
+                const [d, m, y] = dateStr.split('/');
+                if (d && m && y) isoDate = `${y}-${m}-${d}`;
+            }
+
+            await supabaseClient.from('stock_historique').insert([{
+                type_mouvement: type,
+                societe,
+                operateur: document.getElementById('ia-operator')?.value || 'stock_generique',
+                designation,
+                quantite: qty,
+                intervenant: tech,
+                secteur,
+                date_mouvement: isoDate
+            }]);
+        }
+
         async function applyIaMovementsToStock() {
             if (!parsedIaItems.length) {
                 return showToast("Erreur", "Aucun mouvement à valider.", "fa-exclamation-triangle", "text-rose-600");
             }
-
-            const hasInvalid = parsedIaItems.some(i => !i.isValid);
-            if (hasInvalid) {
-                return showToast("Attention", "Cliquez sur l'icône crayon pour choisir un article sur les lignes INCONNU avant de valider.", "fa-exclamation-triangle", "text-amber-600");
+            if (parsedIaItems.some(i => !i.isValid)) {
+                return showToast("Attention", "Supprimez les articles marqués INCONNU avant de valider.", "fa-exclamation-triangle", "text-amber-600");
             }
 
             const societe = document.getElementById('ia-societe').value;
             const secteur = document.getElementById('ia-secteur').value;
-            const operateur = document.getElementById('ia-operator').value;
 
-            showToast("Mise à jour", "Application des mouvements IA...", "fa-spinner fa-spin", "text-indigo-600");
+            showToast("Mise à jour", "Enregistrement dans Supabase...", "fa-spinner fa-spin", "text-indigo-600");
 
             try {
                 for (const item of parsedIaItems) {
-                    const targetItem = stockData.find(i => i.designation === item.designation && i.secteur === secteur);
-                    if (targetItem) {
-                        const currentVal = targetItem[societe] || 0;
-                        const newVal = item.type === 'ENTREE' ? currentVal + item.qty : Math.max(0, currentVal - item.qty);
-                        await supabaseClient.from('stock_consommables').update({ [societe]: newVal }).eq('id', targetItem.id);
-                    }
-
-                    const payload = {
-                        type_mouvement: item.type,
-                        societe: societe,
-                        operateur: operateur,
+                    await applySingleMovement({
+                        type: item.type,
+                        societe,
                         designation: item.designation,
-                        quantite: item.qty,
-                        intervenant: item.tech,
-                        secteur: secteur
-                    };
-
-                    if (item.date && /^\d{2}\/\d{2}\/\d{4}$/.test(item.date)) {
-                        const [day, month, year] = item.date.split('/');
-                        payload.date_mouvement = `${year}-${month}-${day}`;
-                    }
-
-                    const { error: insertErr } = await supabaseClient.from('stock_historique').insert([payload]);
-                    if (insertErr && payload.date_mouvement) {
-                        delete payload.date_mouvement;
-                        await supabaseClient.from('stock_historique').insert([payload]);
-                    }
+                        table: item.table,
+                        qty: item.qty,
+                        tech: item.tech,
+                        secteur,
+                        dateStr: item.date
+                    });
                 }
 
                 parsedIaItems = [];
-                editingIaIndex = null;
                 renderIaDetectedList();
                 document.getElementById('ia-textarea').value = '';
                 await loadSupabaseData();
@@ -1161,6 +868,96 @@ Marc Martin
                 console.error(e);
                 showToast("Erreur", "Impossible de mettre à jour Supabase.", "fa-exclamation-triangle", "text-rose-600");
             }
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+            if (!historyData.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Aucun mouvement enregistré.</td></tr>`;
+                return;
+            }
+            historyData.forEach(h => {
+                const isEntree = h.type_mouvement === 'ENTREE';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 whitespace-nowrap">${h.date_mouvement || (h.created_at ? new Date(h.created_at).toLocaleDateString('fr-FR') : '-')}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${h.type_mouvement}</span></td>
+                    <td class="p-3 uppercase font-semibold">${h.societe || '-'}</td>
+                    <td class="p-3">${h.operateur || '-'}</td>
+                    <td class="p-3 font-bold text-slate-800">${h.designation}</td>
+                    <td class="p-3 text-center font-extrabold ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${h.quantite}</td>
+                    <td class="p-3">${h.intervenant || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAnalytics() {
+            const all = [...consumablesData, ...outillageData];
+            const sumMoba = all.reduce((acc, i) => acc + Number(i.moba ?? 0), 0);
+            const sumNexum = all.reduce((acc, i) => acc + Number(i.nexum ?? 0), 0);
+            const sumHorizon = all.reduce((acc, i) => acc + Number(i.orange ?? 0), 0);
+
+            document.getElementById('kpi-moba').textContent = sumMoba;
+            document.getElementById('kpi-nexum').textContent = sumNexum;
+            document.getElementById('kpi-horizon').textContent = sumHorizon;
+
+            const opTotals = {};
+            historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
+                const op = h.operateur || 'non_defini';
+                opTotals[op] = (opTotals[op] || 0) + Number(h.quantite || 0);
+            });
+
+            if (chartOpInstance) chartOpInstance.destroy();
+            chartOpInstance = new Chart(document.getElementById('chartOperator'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(opTotals).length ? Object.keys(opTotals) : ['Aucune sortie'],
+                    datasets: [{
+                        data: Object.values(opTotals).length ? Object.values(opTotals) : [1],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            if (chartSocInstance) chartSocInstance.destroy();
+            chartSocInstance = new Chart(document.getElementById('chartSociete'), {
+                type: 'bar',
+                data: {
+                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon / Orange'],
+                    datasets: [{
+                        label: 'Quantité en stock',
+                        data: [sumMoba, sumNexum, sumHorizon],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function exportStockCSV() {
+            const list = getCombinedStock();
+            const headers = ['Designation', 'Categorie', 'Depot', 'Moba', 'Nexum', 'Horizon_Orange', 'Alerte'];
+            const rows = list.map(i => [
+                `"${i.designation}"`,
+                i._cat,
+                i.secteur || '',
+                Number(i.moba ?? 0),
+                Number(i.nexum ?? 0),
+                Number(i.orange ?? 0),
+                Number(i.seuil_alerte ?? 2)
+            ].join(';'));
+            const csv = [headers.join(';'), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stock_export_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
