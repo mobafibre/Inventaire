@@ -342,18 +342,18 @@
                             <div class="flex-1 flex flex-col pt-2">
                                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">Collez ici les messages WhatsApp bruts (plusieurs techniciens / équipements) :</label>
                                 <textarea id="ia-textarea" class="w-full flex-1 min-h-[220px] bg-slate-50 border border-slate-200 rounded-xl p-3 font-mono text-xs text-slate-700 focus:outline-none transition leading-relaxed resize-none" placeholder="Exemple :
-Jean Dupont 
-- Jarretière Optique : 5
-- PTO : 2
+[10:42, 13/10/2026] Expediteur: Jean Dupont
+- 5 jarretiere
+- 2 pto
 
-Retour Matériel / Entrée :
+Retour Matériel :
 Marc Martin
-- PBO : 3"></textarea>
+- 3 pbo"></textarea>
                             </div>
                         </div>
 
                         <div class="pt-3 border-t border-slate-100 mt-3">
-                            <button onclick="processIaCheckingText()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
+                            <button onclick="parseWhatsAppText()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-md text-xs md:text-sm flex items-center justify-center gap-2 transition">
                                 <i class="fas fa-wand-magic-sparkles"></i> Analyser & Parser avec l'IA
                             </button>
                         </div>
@@ -397,6 +397,16 @@ Marc Martin
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // 1. Dictionnaire de mapping : [Nom exact dans votre base Supabase] : [Mots-clés / Fautes possibles]
+        const CONSUMABLES_DICTIONARY = {
+            "TOURET 500M": ["touret", "tourets", "touret 500m", "touret 500"],
+            "PTO": ["pto", "ptos"],
+            "JARRETIERE 3.5M": ["jarretiere", "jarretieres", "jarretière", "jarretières", "jarrtiere", "jarrtieres", "jarretières vertes", "jarretiere 3.5m", "jarrtieres 3m5"],
+            "PRE-CABLE": ["pre-cable", "pre cable", "precable", "pré-câble", "pre-câble"],
+            "CABLE APPART": ["cable appart", "câble appart", "cable appartement"],
+            "KIT APPART": ["kit appart", "kit", "kits", "kit appartement"]
+        };
+
         let stockData = [];
         let historyData = [];
         let parsedIaItems = [];
@@ -408,6 +418,29 @@ Marc Martin
             await loadSupabaseData();
             addBatchRow();
         };
+
+        // Fonction pour normaliser le texte (retire accents, majuscules, espaces superflus)
+        function normalizeStr(str) {
+            return (str || '').toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        // Fonction pour retrouver la désignation officielle depuis le texte brut
+        function matchDesignation(rawName) {
+            const clean = normalizeStr(rawName);
+            if (!clean) return null;
+
+            for (const [officialName, aliases] of Object.entries(CONSUMABLES_DICTIONARY)) {
+                if (aliases.some(alias => {
+                    const normAlias = normalizeStr(alias);
+                    return clean === normAlias || clean.includes(normAlias);
+                })) {
+                    return officialName;
+                }
+            }
+            return null;
+        }
 
         function handleTypeFilterChange(shouldRender = true) {
             const typeVal = document.getElementById('filter-type').value;
@@ -506,39 +539,13 @@ Marc Martin
             }
         }
 
-        function findBestMatchConsommable(rawInput) {
-            if (!rawInput || !stockData.length) return rawInput;
-            const inputClean = rawInput.toLowerCase().replace(/[^a-z0-9]/g, '');
-            let bestMatch = rawInput;
-            let highestScore = 0;
-
-            stockData.forEach(item => {
-                const officialName = item.designation;
-                const cleanOfficial = officialName.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-                if (cleanOfficial.includes(inputClean) || inputClean.includes(cleanOfficial)) {
-                    if (100 > highestScore) { highestScore = 100; bestMatch = officialName; }
-                }
-
-                const words = rawInput.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-                let wordMatches = 0;
-                words.forEach(word => { if (officialName.toLowerCase().includes(word)) wordMatches++; });
-
-                if (words.length > 0) {
-                    const score = (wordMatches / words.length) * 80;
-                    if (score > highestScore && score >= 40) { highestScore = score; bestMatch = officialName; }
-                }
-            });
-            return bestMatch;
-        }
-
         // 1. RENDU TABLEAU DE STOCK (CONSOMMABLES + FILTRE OPÉRATEUR)
         function renderStockTable() {
             const typeVal = document.getElementById('filter-type').value;
             if (typeVal === 'materiel') return;
 
             const tbody = document.getElementById('stock-table-body');
-            const search = document.getElementById('stock-search').value.toLowerCase();
+            const search = normalizeStr(document.getElementById('stock-search').value);
             const sectorFilter = document.getElementById('filter-secteur').value;
             const opFilter = document.getElementById('filter-operateur').value;
             tbody.innerHTML = '';
@@ -547,10 +554,9 @@ Marc Martin
             let totalRefs = 0;
 
             stockData.forEach((item, index) => {
-                // Si une colonne catégorie/type existe en base, exclure les matériels explicites sur la vue consommables
-                if (typeVal === 'consommable' && item.categorie && item.categorie.toLowerCase().includes('materiel')) return;
+                if (typeVal === 'consommable' && item.categorie && normalizeStr(item.categorie).includes('materiel')) return;
                 if (sectorFilter && item.secteur !== sectorFilter) return;
-                if (search && !item.designation.toLowerCase().includes(search)) return;
+                if (search && !normalizeStr(item.designation).includes(search)) return;
 
                 let moba = item.moba_fibre || 0;
                 let nexum = item.nexum_co || 0;
@@ -817,45 +823,94 @@ Marc Martin
             });
         }
 
-        // 5. IA CHECKING (PARSING WHATSAPP)
-        function processIaCheckingText() {
-            const rawText = document.getElementById('ia-textarea').value.trim();
-            if (!rawText) return showToast("Attention", "Veuillez coller un message à analyser.", "fa-exclamation-circle", "text-amber-500");
+        // 5. IA CHECKING - Fonction principale d'analyse du texte WhatsApp
+        function parseWhatsAppText() {
+            const rawText = document.getElementById('ia-textarea').value;
+            if (!rawText.trim()) {
+                return showToast("Attention", "Collez un message WhatsApp avant de lancer l'analyse.", "fa-exclamation-circle", "text-amber-500");
+            }
 
             parsedIaItems = [];
             const lines = rawText.split('\n');
-            let currentType = 'SORTIE';
-            let currentTech = 'Non précisé';
 
-            lines.forEach(line => {
-                const clean = line.trim();
-                if (!clean) return;
+            let currentDate = new Date().toLocaleDateString('fr-FR');
+            let currentTech = "Inconnu";
+            let currentType = "SORTIE";
 
-                if (/retour|entr[ée]e/i.test(clean) && !/\d+/.test(clean)) {
-                    currentType = 'ENTREE';
-                    return;
+            const waHeaderRegex = /^\[(\d{2}:\d{2}),\s*(\d{2}\/\d{2}\/\d{4})\]\s*([^:]+):\s*(.*)$/i;
+            const itemQtyFirstRegex = /^[-*•]?\s*(\d+)\s+(.+)$/;
+            const itemQtyLastRegex = /^[-*•]?\s*([^:]+)\s*:\s*(\d+)$/;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                let contentToAnalyze = line;
+
+                const waMatch = line.match(waHeaderRegex);
+                if (waMatch) {
+                    currentDate = waMatch[2];
+                    contentToAnalyze = waMatch[4].trim();
+
+                    const lowerContent = normalizeStr(contentToAnalyze);
+                    if (lowerContent.includes('entree') || lowerContent.includes('retour') || lowerContent.includes('appro')) {
+                        currentType = "ENTREE";
+                    } else {
+                        currentType = "SORTIE";
+                    }
                 }
-                if (/sortie|prise|mat[ée]riel/i.test(clean) && !/\d+/.test(clean)) {
-                    currentType = 'SORTIE';
-                    return;
-                }
 
-                const itemMatch = clean.match(/^[-•*]?\s*([a-zA-ZÀ-ÿ0-9\s/()]+?)\s*[:=\-x]?\s*(\d+)\s*$/i);
-                if (itemMatch) {
-                    const rawName = itemMatch[1].trim();
-                    const qty = parseInt(itemMatch[2], 10);
-                    const matchedName = findBestMatchConsommable(rawName);
+                if (!contentToAnalyze) continue;
+
+                const matchFirst = contentToAnalyze.match(itemQtyFirstRegex);
+                const matchLast = contentToAnalyze.match(itemQtyLastRegex);
+
+                if (matchFirst) {
+                    const qty = parseInt(matchFirst[1], 10);
+                    const rawItem = matchFirst[2].trim();
+                    const officialDesignation = matchDesignation(rawItem);
+
                     parsedIaItems.push({
-                        type: currentType,
+                        date: currentDate,
                         tech: currentTech,
-                        rawName: rawName,
-                        designation: matchedName,
-                        qty: qty
+                        type: currentType,
+                        qty: qty,
+                        rawName: rawItem,
+                        designation: officialDesignation || `⚠️ INCONNU (${rawItem})`,
+                        isValid: !!officialDesignation
                     });
-                } else if (clean.length < 35 && !/\d/.test(clean)) {
-                    currentTech = clean.replace(/[:\-]/g, '').trim();
+                    continue;
+                } else if (matchLast && !normalizeStr(matchLast[1]).includes('conso')) {
+                    const rawItem = matchLast[1].trim();
+                    const qty = parseInt(matchLast[2], 10);
+                    const officialDesignation = matchDesignation(rawItem);
+
+                    parsedIaItems.push({
+                        date: currentDate,
+                        tech: currentTech,
+                        type: currentType,
+                        qty: qty,
+                        rawName: rawItem,
+                        designation: officialDesignation || `⚠️ INCONNU (${rawItem})`,
+                        isValid: !!officialDesignation
+                    });
+                    continue;
                 }
-            });
+
+                let potentialTech = contentToAnalyze
+                    .replace(/consommables?\s*:?/gi, '')
+                    .replace(/conso\s*:?/gi, '')
+                    .replace(/\(.*?\)/g, '')
+                    .replace(/:/g, '')
+                    .trim();
+
+                if (potentialTech.length > 2 && /[a-zA-Z]/.test(potentialTech)) {
+                    currentTech = potentialTech
+                        .split(/\s+/)
+                        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                        .join(' ');
+                }
+            }
 
             renderIaDetectedList();
         }
@@ -866,35 +921,76 @@ Marc Martin
             container.innerHTML = '';
 
             if (!parsedIaItems.length) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Aucun article détecté. Vérifiez le format (ex: <code>- PTO : 2</code>).</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Aucun article détecté. Collez votre export WhatsApp et lancez l'analyse.</div>`;
                 return;
             }
 
+            const grouped = {};
             parsedIaItems.forEach((item, idx) => {
-                const isEntree = item.type === 'ENTREE';
-                const div = document.createElement('div');
-                div.className = "p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2 text-xs";
-                div.innerHTML = `
-                    <div class="space-y-0.5">
-                        <div class="flex items-center gap-1.5">
-                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${item.type}</span>
-                            <span class="font-bold text-slate-800">${item.designation}</span>
-                        </div>
-                        <p class="text-[10px] text-slate-500">Tech: <b>${item.tech}</b> • Brut: "${item.rawName}"</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="font-extrabold text-sm ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${item.qty}</span>
-                        <button onclick="parsedIaItems.splice(${idx}, 1); renderIaDetectedList();" class="text-slate-400 hover:text-rose-600">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(div);
+                const key = `${item.date} — ${item.tech}`;
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push({ ...item, originalIndex: idx });
             });
+
+            for (const [groupHeader, items] of Object.entries(grouped)) {
+                const groupWrapper = document.createElement('div');
+                groupWrapper.className = "mb-3 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm";
+
+                let html = `
+                    <div class="bg-slate-100 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700"><i class="fas fa-user-hard-hat mr-1.5 text-indigo-600"></i>${groupHeader}</span>
+                        <span class="text-[10px] font-semibold text-slate-500">${items.length} article(s)</span>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                `;
+
+                items.forEach(item => {
+                    const isEntree = item.type === 'ENTREE';
+                    const badgeStyle = !item.isValid 
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                        : (isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700');
+
+                    html += `
+                        <div class="p-2.5 flex items-center justify-between gap-2 text-xs ${!item.isValid ? 'bg-amber-50/50' : ''}">
+                            <div class="space-y-0.5">
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="toggleItemType(${item.originalIndex})" title="Cliquer pour inverser Entrée/Sortie" class="px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer ${badgeStyle}">
+                                        ${item.type}
+                                    </button>
+                                    <span class="font-bold text-slate-800">${item.designation}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Texte brut : "${item.rawName}"</p>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="font-extrabold text-sm ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${item.qty}</span>
+                                <button onclick="parsedIaItems.splice(${item.originalIndex}, 1); renderIaDetectedList();" class="text-slate-400 hover:text-rose-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+                groupWrapper.innerHTML = html;
+                container.appendChild(groupWrapper);
+            }
+        }
+
+        function toggleItemType(idx) {
+            parsedIaItems[idx].type = parsedIaItems[idx].type === 'SORTIE' ? 'ENTREE' : 'SORTIE';
+            renderIaDetectedList();
         }
 
         async function applyIaMovementsToStock() {
-            if (!parsedIaItems.length) return showToast("Erreur", "Aucun mouvement à valider.", "fa-exclamation-triangle", "text-rose-600");
+            if (!parsedIaItems.length) {
+                return showToast("Erreur", "Aucun mouvement à valider.", "fa-exclamation-triangle", "text-rose-600");
+            }
+
+            const hasInvalid = parsedIaItems.some(i => !i.isValid);
+            if (hasInvalid) {
+                return showToast("Attention", "Supprimez ou corrigez les articles marqués INCONNU avant de valider.", "fa-exclamation-triangle", "text-amber-600");
+            }
 
             const societe = document.getElementById('ia-societe').value;
             const secteur = document.getElementById('ia-secteur').value;
@@ -911,7 +1007,7 @@ Marc Martin
                         await supabaseClient.from('stock_consommables').update({ [societe]: newVal }).eq('id', targetItem.id);
                     }
 
-                    await supabaseClient.from('stock_historique').insert([{
+                    const payload = {
                         type_mouvement: item.type,
                         societe: societe,
                         operateur: operateur,
@@ -919,14 +1015,25 @@ Marc Martin
                         quantite: item.qty,
                         intervenant: item.tech,
                         secteur: secteur
-                    }]);
+                    };
+
+                    if (item.date && /^\d{2}\/\d{2}\/\d{4}$/.test(item.date)) {
+                        const [day, month, year] = item.date.split('/');
+                        payload.date_mouvement = `${year}-${month}-${day}`;
+                    }
+
+                    const { error: insertErr } = await supabaseClient.from('stock_historique').insert([payload]);
+                    if (insertErr && payload.date_mouvement) {
+                        delete payload.date_mouvement;
+                        await supabaseClient.from('stock_historique').insert([payload]);
+                    }
                 }
 
                 parsedIaItems = [];
                 renderIaDetectedList();
                 document.getElementById('ia-textarea').value = '';
                 await loadSupabaseData();
-                showToast("Succès", "Stock mis à jour via IA Checking !", "fa-check-circle", "text-emerald-600");
+                showToast("Succès", "Stock et historique mis à jour !", "fa-check-circle", "text-emerald-600");
             } catch (e) {
                 console.error(e);
                 showToast("Erreur", "Impossible de mettre à jour Supabase.", "fa-exclamation-triangle", "text-rose-600");
