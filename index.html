@@ -119,6 +119,12 @@
                         
                         <!-- Filtres Responsive -->
                         <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+                            <select id="filter-type" onchange="handleTypeFilterChange()" class="bg-blue-50/70 border border-blue-200 rounded-xl px-3 py-2 text-xs text-blue-900 font-bold focus:outline-none">
+                                <option value="consommable" selected>Type : Consommables</option>
+                                <option value="materiel">Type : Matériels (À venir)</option>
+                                <option value="">Type : Tous</option>
+                            </select>
+
                             <select id="filter-secteur" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none">
                                 <option value="Garges" selected>Dépôt : Garges</option>
                                 <option value="Bordeaux">Dépôt : Bordeaux</option>
@@ -134,12 +140,6 @@
                                 <option value="stock_generique">Générique / Stock</option>
                             </select>
 
-                            <select id="filter-materiels" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none">
-                                <option value="" selected>Type : Tous</option>
-                                <option value="materiel">Matériels</option>
-                                <option value="consommable">Consommables</option>
-                            </select>
-
                             <div class="relative col-span-2 sm:w-56">
                                 <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
                                 <input type="text" id="stock-search" placeholder="Rechercher..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none" oninput="renderStockTable()">
@@ -147,8 +147,8 @@
                         </div>
                     </div>
 
-                    <!-- Tableau du stock -->
-                    <div class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200">
+                    <!-- VUE CONSOMMABLES (Tableau principal avec filtre Opérateur) -->
+                    <div id="consommables-view" class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200 flex flex-col">
                         <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
@@ -165,6 +165,21 @@
                             <tbody id="stock-table-body" class="divide-y divide-slate-100 text-[11px] font-medium text-slate-700"></tbody>
                         </table>
                     </div>
+
+                    <!-- VUE MATÉRIELS (Emplacement réservé pour une autre table à ajouter plus tard) -->
+                    <div id="materiels-view" class="hidden flex-1 mt-3 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 flex flex-col items-center justify-center p-8 text-center">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mb-3 shadow-sm">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm md:text-base mb-1">Table Matériels — À ajouter ultérieurement</h4>
+                        <p class="text-xs text-slate-500 max-w-md mb-4">
+                            Les consommables restent gérés avec le filtre opérateur. Cet espace est réservé pour intégrer prochainement votre table dédiée aux matériels.
+                        </p>
+                        <button onclick="document.getElementById('filter-type').value='consommable'; handleTypeFilterChange();" class="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200 shadow-sm transition">
+                            <i class="fas fa-arrow-left mr-1"></i> Retour aux Consommables
+                        </button>
+                    </div>
+
                 </div>
             </section>
 
@@ -389,9 +404,36 @@ Marc Martin
         let chartSocInstance = null;
 
         window.onload = async function() {
+            handleTypeFilterChange(false);
             await loadSupabaseData();
             addBatchRow();
         };
+
+        function handleTypeFilterChange(shouldRender = true) {
+            const typeVal = document.getElementById('filter-type').value;
+            const opSelect = document.getElementById('filter-operateur');
+            const searchInput = document.getElementById('stock-search');
+            const consommablesView = document.getElementById('consommables-view');
+            const materielsView = document.getElementById('materiels-view');
+
+            if (typeVal === 'materiel') {
+                consommablesView.classList.add('hidden');
+                materielsView.classList.remove('hidden');
+                opSelect.disabled = true;
+                opSelect.classList.add('opacity-50', 'cursor-not-allowed');
+                searchInput.disabled = true;
+                searchInput.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                consommablesView.classList.remove('hidden');
+                materielsView.classList.add('hidden');
+                opSelect.disabled = false;
+                opSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                searchInput.disabled = false;
+                searchInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            if (shouldRender) renderStockTable();
+        }
 
         function showToast(title, message, iconClass = "fa-info-circle", colorClass = "text-blue-500") {
             const toast = document.getElementById('toast');
@@ -490,21 +532,24 @@ Marc Martin
             return bestMatch;
         }
 
-        // 1. RENDU TABLEAU DE STOCK
+        // 1. RENDU TABLEAU DE STOCK (CONSOMMABLES + FILTRE OPÉRATEUR)
         function renderStockTable() {
+            const typeVal = document.getElementById('filter-type').value;
+            if (typeVal === 'materiel') return;
+
             const tbody = document.getElementById('stock-table-body');
             const search = document.getElementById('stock-search').value.toLowerCase();
             const sectorFilter = document.getElementById('filter-secteur').value;
             const opFilter = document.getElementById('filter-operateur').value;
-            const typeFilter = document.getElementById('filter-materiels').value;
             tbody.innerHTML = '';
 
             let lowStockCount = 0;
             let totalRefs = 0;
 
             stockData.forEach((item, index) => {
+                // Si une colonne catégorie/type existe en base, exclure les matériels explicites sur la vue consommables
+                if (typeVal === 'consommable' && item.categorie && item.categorie.toLowerCase().includes('materiel')) return;
                 if (sectorFilter && item.secteur !== sectorFilter) return;
-                if (typeFilter && item.categorie && item.categorie.toLowerCase() !== typeFilter) return;
                 if (search && !item.designation.toLowerCase().includes(search)) return;
 
                 let moba = item.moba_fibre || 0;
@@ -795,7 +840,6 @@ Marc Martin
                     return;
                 }
 
-                // Détection d'une ligne article avec quantité (ex: "- PTO : 2" ou "Jarretière 5")
                 const itemMatch = clean.match(/^[-•*]?\s*([a-zA-ZÀ-ÿ0-9\s/()]+?)\s*[:=\-x]?\s*(\d+)\s*$/i);
                 if (itemMatch) {
                     const rawName = itemMatch[1].trim();
@@ -809,7 +853,6 @@ Marc Martin
                         qty: qty
                     });
                 } else if (clean.length < 35 && !/\d/.test(clean)) {
-                    // Considéré comme le nom du technicien
                     currentTech = clean.replace(/[:\-]/g, '').trim();
                 }
             });
