@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <!-- Menu réorganisé (1: Stock, 2: Entrée/Sortie, 3: Graphiques, 4: Historique, 5: IA Checking) -->
+            <!-- Menu -->
             <nav class="p-2 md:p-3 flex md:flex-col overflow-x-auto gap-1 text-xs">
                 <button onclick="switchTab('stock')" id="nav-stock" class="nav-btn whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-2.5 md:py-3 rounded-xl font-semibold transition-all bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
                     <i class="fas text-sm md:text-lg fa-table text-blue-500"></i>
@@ -97,6 +97,9 @@
             </h2>
             
             <div class="flex items-center gap-2">
+                <button onclick="loadSupabaseData()" class="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-semibold text-blue-700 flex items-center gap-1.5 transition border border-blue-200 shadow-sm">
+                    <i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Actualiser</span>
+                </button>
                 <button onclick="exportStockCSV()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition border border-slate-200 shadow-sm">
                     <i class="fas fa-file-csv text-emerald-600"></i> <span class="hidden sm:inline">Export CSV</span>
                 </button>
@@ -131,6 +134,12 @@
                                 <option value="stock_generique">Générique / Stock</option>
                             </select>
 
+                            <select id="filter-materiels" onchange="renderStockTable()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold focus:outline-none">
+                                <option value="" selected>Type : Tous</option>
+                                <option value="materiel">Matériels</option>
+                                <option value="consommable">Consommables</option>
+                            </select>
+
                             <div class="relative col-span-2 sm:w-56">
                                 <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
                                 <input type="text" id="stock-search" placeholder="Rechercher..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none" oninput="renderStockTable()">
@@ -159,7 +168,7 @@
                 </div>
             </section>
 
-            <!-- 2. ENTRÉE / SORTIE (AGRANDI ET OPTIMISÉ) -->
+            <!-- 2. ENTRÉE / SORTIE -->
             <section id="tab-movement" class="tab-content hidden h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full">
                     <div class="flex justify-between items-center pb-4 border-b border-slate-100 gap-2">
@@ -187,7 +196,7 @@
                 </div>
             </section>
 
-            <!-- 3. GRAPHIQUES (VISUEL AMÉLIORÉ & CARTE KPI) -->
+            <!-- 3. GRAPHIQUES -->
             <section id="tab-analytics" class="tab-content hidden h-full">
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col h-full overflow-y-auto space-y-5">
                     
@@ -218,7 +227,7 @@
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                             <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
                                 <span>Volume de Sorties par Opérateur</span>
-                                <i class="fas fa-chart-donut text-slate-400"></i>
+                                <i class="fas fa-chart-pie text-slate-400"></i>
                             </h4>
                             <div class="w-full h-56 md:h-64 relative">
                                 <canvas id="chartOperator"></canvas>
@@ -271,7 +280,7 @@
                 </div>
             </section>
 
-            <!-- 5. IA CHECKING (NOUVELLE RUBRIQUE DÉDIÉE) -->
+            <!-- 5. IA CHECKING -->
             <section id="tab-iacheck" class="tab-content hidden h-full">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 h-full">
                     
@@ -291,9 +300,9 @@
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société</label>
                                     <select id="ia-societe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
-                                        <option value="Moba Fibre">Moba Fibre</option>
-                                        <option value="Nexum & Co">Nexum & Co</option>
-                                        <option value="Horizon Groupe">Horizon Groupe</option>
+                                        <option value="moba_fibre">Moba Fibre</option>
+                                        <option value="nexum_co">Nexum & Co</option>
+                                        <option value="horizon_groupe">Horizon Groupe</option>
                                     </select>
                                 </div>
                                 <div>
@@ -384,20 +393,44 @@ Marc Martin
             addBatchRow();
         };
 
+        function showToast(title, message, iconClass = "fa-info-circle", colorClass = "text-blue-500") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            const icon = document.getElementById('toastIcon');
+            icon.className = `fas text-base ${iconClass} ${colorClass}`;
+
+            toast.classList.remove('translate-y-[-150%]', 'md:translate-x-full');
+            toast.classList.add('translate-y-0', 'md:translate-x-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-150%]', 'md:translate-x-full');
+                toast.classList.remove('translate-y-0', 'md:translate-x-0');
+            }, 3000);
+        }
+
         async function loadSupabaseData() {
             try {
                 showToast("Chargement", "Récupération des données Supabase...", "fa-spinner fa-spin", "text-blue-600");
-                const { data: stock, error: stockErr } = await supabaseClient.from('stock_consommables').select('*').order('reference_id', { ascending: true });
+                const { data: stock, error: stockErr } = await supabaseClient
+                    .from('stock_consommables')
+                    .select('*')
+                    .order('reference_id', { ascending: true });
                 if (stockErr) throw stockErr;
                 stockData = stock || [];
 
-                const { data: hist, error: histErr } = await supabaseClient.from('stock_historique').select('*').order('horodatage', { ascending: false }).limit(100);
+                const { data: hist, error: histErr } = await supabaseClient
+                    .from('stock_historique')
+                    .select('*')
+                    .order('horodatage', { ascending: false })
+                    .limit(100);
                 if (histErr) throw histErr;
                 historyData = hist || [];
 
                 renderStockTable();
                 renderHistoryTable();
                 renderAnalyticsCharts();
+                updateBatchDropdowns();
                 showToast("Succès", "Données synchronisées !", "fa-check-circle", "text-emerald-600");
             } catch (err) {
                 console.error(err);
@@ -426,7 +459,7 @@ Marc Martin
             };
             document.getElementById('page-title').innerHTML = titles[tabId];
 
-            if(tabId === 'analytics') {
+            if (tabId === 'analytics') {
                 setTimeout(renderAnalyticsCharts, 150);
             }
         }
@@ -457,18 +490,21 @@ Marc Martin
             return bestMatch;
         }
 
+        // 1. RENDU TABLEAU DE STOCK
         function renderStockTable() {
             const tbody = document.getElementById('stock-table-body');
             const search = document.getElementById('stock-search').value.toLowerCase();
             const sectorFilter = document.getElementById('filter-secteur').value;
             const opFilter = document.getElementById('filter-operateur').value;
+            const typeFilter = document.getElementById('filter-materiels').value;
             tbody.innerHTML = '';
 
             let lowStockCount = 0;
             let totalRefs = 0;
 
-            stockData.forEach(item => {
+            stockData.forEach((item, index) => {
                 if (sectorFilter && item.secteur !== sectorFilter) return;
+                if (typeFilter && item.categorie && item.categorie.toLowerCase() !== typeFilter) return;
                 if (search && !item.designation.toLowerCase().includes(search)) return;
 
                 let moba = item.moba_fibre || 0;
@@ -496,74 +532,103 @@ Marc Martin
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 row.innerHTML = `
-                    <td class="p-3 text-center font-bold text-slate-500">${item.reference_id}</td>
-                    <td class="p-3 text-slate-800 font-medium">${item.designation}</td>
-                    <td class="p-3 text-center text-blue-700 font-semibold bg-blue-50/30">${moba}</td>
-                    <td class="p-3 text-center text-amber-700 font-semibold bg-amber-50/30">${nexum}</td>
-                    <td class="p-3 text-center text-purple-700 font-semibold bg-purple-50/30">${horizon}</td>
-                    <td class="p-3 text-center text-emerald-700 font-bold bg-emerald-50/40" style="${opBadgeStyle}">${totalRow}</td>
+                    <td class="p-3 text-center text-slate-400 font-mono">${item.reference_id || index + 1}</td>
+                    <td class="p-3 font-semibold text-slate-800">${item.designation}</td>
+                    <td class="p-3 text-center bg-blue-50/30 font-bold text-blue-700" style="${opBadgeStyle}">${moba}</td>
+                    <td class="p-3 text-center bg-amber-50/30 font-bold text-amber-700">${nexum}</td>
+                    <td class="p-3 text-center bg-purple-50/30 font-bold text-purple-700">${horizon}</td>
+                    <td class="p-3 text-center bg-emerald-50/40 font-extrabold text-emerald-700">${totalRow}</td>
                     <td class="p-3 text-center">
-                        ${isAlert ? '<span class="px-2 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-[10px] font-bold">Alerte</span>' : '<span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px]">OK</span>'}
+                        ${isAlert 
+                            ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold"><i class="fas fa-exclamation-circle"></i> Bas</span>' 
+                            : '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">OK</span>'}
                     </td>
-                    <td class="p-3 text-slate-500 text-[10px]">${item.unite_details || ''}</td>
+                    <td class="p-3 text-slate-500 text-[10px]">${item.unite || 'Unité'} • ${item.secteur || 'Garges'}</td>
                 `;
                 tbody.appendChild(row);
             });
 
-            document.getElementById('stat-total-refs').innerText = totalRefs;
-            document.getElementById('stat-low-stock').innerText = lowStockCount;
+            document.getElementById('stat-total-refs').textContent = totalRefs;
+            document.getElementById('stat-low-stock').textContent = lowStockCount;
         }
 
-        /* --- RUBRIQUE ENTRÉE / SORTIE (CASES AGRANDIES) --- */
+        // EXPORT CSV
+        function exportStockCSV() {
+            if (!stockData.length) return showToast("Info", "Aucune donnée à exporter", "fa-info-circle", "text-amber-500");
+            const headers = ["Ref", "Secteur", "Designation", "Moba Fibre", "Nexum & Co", "Horizon Groupe", "Orange", "Free", "Bouygues", "Generique"];
+            const rows = stockData.map(i => [
+                i.reference_id, i.secteur, `"${i.designation}"`, i.moba_fibre || 0, i.nexum_co || 0, i.horizon_groupe || 0, i.orange || 0, i.free || 0, i.bouygues || 0, i.stock_generique || 0
+            ]);
+            const csvContent = "data:text/csv;charset=utf-8," + [headers.join(";"), ...rows.map(e => e.join(";"))].join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `export_stock_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 2. FORMULAIRE ENTRÉE / SORTIE
+        function getDesignationOptionsHTML() {
+            const uniqueNames = [...new Set(stockData.map(i => i.designation))];
+            return uniqueNames.map(name => `<option value="${name}">${name}</option>`).join('');
+        }
+
+        function updateBatchDropdowns() {
+            const options = getDesignationOptionsHTML();
+            document.querySelectorAll('.batch-designation').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = options;
+                if (currentVal) select.value = currentVal;
+            });
+        }
+
         function addBatchRow() {
             const container = document.getElementById('batch-rows-container');
-            const rowId = Date.now() + Math.random().toString(36).substring(2, 5);
-            let optionsHtml = [...new Set(stockData.map(i => i.designation))].map(name => `<option value="${name}">${name}</option>`).join('');
-
-            const row = document.createElement('div');
-            row.id = `batch-row-${rowId}`;
-            row.className = "flex flex-col sm:grid sm:grid-cols-12 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs shadow-sm items-center";
-            row.innerHTML = `
-                <div class="sm:col-span-2 flex gap-1.5 w-full">
-                    <select class="batch-type w-1/2 bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-800 focus:outline-none">
-                        <option value="SORTIE">SORTIE (-)</option>
-                        <option value="ENTREE">ENTRÉE (+)</option>
-                    </select>
-                    <select class="batch-op w-1/2 bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
-                        <option value="orange">Orange</option>
-                        <option value="free">Free</option>
-                        <option value="bouygues">Bouygues</option>
-                        <option value="stock_generique">Générique</option>
+            const rowId = 'row-' + Date.now() + Math.floor(Math.random() * 100);
+            const div = document.createElement('div');
+            div.id = rowId;
+            div.className = "grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-200";
+            div.innerHTML = `
+                <div class="sm:col-span-2">
+                    <select class="batch-type w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs font-bold">
+                        <option value="SORTIE" class="text-rose-600">Sortie (-)</option>
+                        <option value="ENTREE" class="text-emerald-600">Entrée (+)</option>
                     </select>
                 </div>
-                <div class="sm:col-span-2 w-full">
-                    <select class="batch-societe w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
-                        <option value="Moba Fibre">Moba Fibre</option>
-                        <option value="Nexum & Co">Nexum & Co</option>
-                        <option value="Horizon Groupe">Horizon Groupe</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-2 w-full">
-                    <select class="batch-secteur w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                <div class="sm:col-span-2">
+                    <select class="batch-secteur w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs">
                         <option value="Garges">Garges</option>
                         <option value="Bordeaux">Bordeaux</option>
                         <option value="Orthez">Orthez</option>
                     </select>
                 </div>
-                <div class="sm:col-span-3 w-full">
-                    <select class="batch-item w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none">${optionsHtml}</select>
+                <div class="sm:col-span-2">
+                    <select class="batch-societe w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs">
+                        <option value="moba_fibre">Moba Fibre</option>
+                        <option value="nexum_co">Nexum & Co</option>
+                        <option value="horizon_groupe">Horizon Groupe</option>
+                    </select>
                 </div>
-                <div class="sm:col-span-1 w-full">
-                    <input type="number" min="1" value="1" class="batch-qty w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold text-slate-800 text-center focus:outline-none">
+                <div class="sm:col-span-3">
+                    <select class="batch-designation w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs font-medium">
+                        ${getDesignationOptionsHTML()}
+                    </select>
                 </div>
-                <div class="sm:col-span-1 w-full">
-                    <input type="text" placeholder="Technicien..." class="batch-tech w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-800 focus:outline-none">
+                <div class="sm:col-span-1">
+                    <input type="number" min="1" value="1" class="batch-qty w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs text-center font-bold">
                 </div>
-                <div class="sm:col-span-1 text-right w-full">
-                    <button onclick="document.getElementById('batch-row-${rowId}').remove()" class="text-slate-400 hover:text-rose-600 p-2 text-sm"><i class="fas fa-trash"></i></button>
+                <div class="sm:col-span-1">
+                    <input type="text" placeholder="Tech..." class="batch-tech w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs">
+                </div>
+                <div class="sm:col-span-1 text-right">
+                    <button onclick="document.getElementById('${rowId}').remove()" class="text-rose-500 hover:text-rose-700 p-2">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
             `;
-            container.appendChild(row);
+            container.appendChild(div);
         }
 
         function clearBatchRows() {
@@ -573,302 +638,256 @@ Marc Martin
 
         async function submitBatchMovements() {
             const rows = document.querySelectorAll('#batch-rows-container > div');
-            let count = 0;
+            if (!rows.length) return;
 
-            for (const r of rows) {
-                const type = r.querySelector('.batch-type').value;
-                const op = r.querySelector('.batch-op').value;
-                const societe = r.querySelector('.batch-societe').value;
-                const secteur = r.querySelector('.batch-secteur').value;
-                const itemName = r.querySelector('.batch-item').value;
-                const qty = parseInt(r.querySelector('.batch-qty').value) || 0;
-                const tech = r.querySelector('.batch-tech').value.trim() || 'Magasinier';
+            showToast("Traitement", "Mise à jour du stock en cours...", "fa-spinner fa-spin", "text-blue-600");
 
-                const item = stockData.find(s => s.designation === itemName && s.secteur === secteur);
-                if (item && qty > 0) {
-                    const newQty = type === 'ENTREE' ? item[op] + qty : Math.max(0, item[op] - qty);
+            try {
+                for (const row of rows) {
+                    const type = row.querySelector('.batch-type').value;
+                    const secteur = row.querySelector('.batch-secteur').value;
+                    const societe = row.querySelector('.batch-societe').value;
+                    const designation = row.querySelector('.batch-designation').value;
+                    const qty = parseInt(row.querySelector('.batch-qty').value) || 0;
+                    const intervenant = row.querySelector('.batch-tech').value || "Manuel";
 
-                    const { error } = await supabaseClient.from('stock_consommables').update({ [op]: newQty }).eq('id', item.id);
-                    if (!error) {
-                        item[op] = newQty;
-                        await supabaseClient.from('stock_historique').insert([{
-                            type_mouvement: type,
-                            societe: societe,
-                            secteur: secteur,
-                            operator: op,
-                            designation: item.designation,
-                            quantite: qty,
-                            intervenant: tech
-                        }]);
-                        count++;
+                    if (qty <= 0 || !designation) continue;
+
+                    const targetItem = stockData.find(i => i.designation === designation && i.secteur === secteur);
+                    if (targetItem) {
+                        const currentVal = targetItem[societe] || 0;
+                        const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
+                        await supabaseClient.from('stock_consommables').update({ [societe]: newVal }).eq('id', targetItem.id);
                     }
+
+                    await supabaseClient.from('stock_historique').insert([{
+                        type_mouvement: type,
+                        societe: societe,
+                        operateur: 'stock_generique',
+                        designation: designation,
+                        quantite: qty,
+                        intervenant: intervenant,
+                        secteur: secteur
+                    }]);
                 }
-            }
 
-            if (count > 0) {
-                await loadSupabaseData();
-                showToast("Succès", `${count} mouvements enregistrés !`, "fa-check-circle", "text-emerald-600");
                 clearBatchRows();
+                await loadSupabaseData();
+                showToast("Validé", "Stock et historique mis à jour !", "fa-check-circle", "text-emerald-600");
+            } catch (e) {
+                console.error(e);
+                showToast("Erreur", "Échec de l'enregistrement.", "fa-exclamation-triangle", "text-rose-600");
             }
         }
 
-        /* --- GRAPHIQUES MODERNISÉS --- */
+        // 3. GRAPHIQUES & KPI
         function renderAnalyticsCharts() {
-            const opCounts = { orange: 0, free: 0, bouygues: 0, stock_generique: 0 };
-            historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
-                if (opCounts[h.operator] !== undefined) opCounts[h.operator] += h.quantite;
-            });
+            let totalMoba = 0, totalNexum = 0, totalHorizon = 0;
+            let opStats = { orange: 0, free: 0, bouygues: 0, stock_generique: 0 };
 
-            const ctxOp = document.getElementById('chartOperator').getContext('2d');
-            if(chartOpInstance) chartOpInstance.destroy();
-            chartOpInstance = new Chart(ctxOp, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Orange', 'Free', 'Bouygues', 'Générique'],
-                    datasets: [{
-                        data: [opCounts.orange, opCounts.free, opCounts.bouygues, opCounts.stock_generique],
-                        backgroundColor: ['#ea580c', '#e11d48', '#16a34a', '#64748b'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#475569', font: { size: 11, weight: '600' } } } } }
-            });
-
-            let mobaTot = 0, nexumTot = 0, horizonTot = 0;
             stockData.forEach(item => {
-                mobaTot += (item.moba_fibre || 0);
-                nexumTot += (item.nexum_co || 0);
-                horizonTot += (item.horizon_groupe || 0);
+                totalMoba += (item.moba_fibre || 0);
+                totalNexum += (item.nexum_co || 0);
+                totalHorizon += (item.horizon_groupe || 0);
             });
 
-            document.getElementById('kpi-moba').innerText = mobaTot;
-            document.getElementById('kpi-nexum').innerText = nexumTot;
-            document.getElementById('kpi-horizon').innerText = horizonTot;
-
-            const ctxSoc = document.getElementById('chartSociete').getContext('2d');
-            if(chartSocInstance) chartSocInstance.destroy();
-            chartSocInstance = new Chart(ctxSoc, {
-                type: 'bar',
-                data: {
-                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon Groupe'],
-                    datasets: [{
-                        label: 'Total Articles',
-                        data: [mobaTot, nexumTot, horizonTot],
-                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
-                        borderRadius: 8
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#475569' } }, x: { ticks: { color: '#475569' } } }, plugins: { legend: { display: false } } }
+            historyData.forEach(h => {
+                if (h.type_mouvement === 'SORTIE') {
+                    const op = (h.operateur || 'stock_generique').toLowerCase();
+                    if (opStats[op] !== undefined) opStats[op] += (h.quantite || 0);
+                    else opStats.stock_generique += (h.quantite || 0);
+                }
             });
+
+            document.getElementById('kpi-moba').textContent = totalMoba;
+            document.getElementById('kpi-nexum').textContent = totalNexum;
+            document.getElementById('kpi-horizon').textContent = totalHorizon;
+
+            const ctxOp = document.getElementById('chartOperator');
+            if (ctxOp) {
+                if (chartOpInstance) chartOpInstance.destroy();
+                chartOpInstance = new Chart(ctxOp, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Orange', 'Free', 'Bouygues', 'Générique'],
+                        datasets: [{
+                            data: [opStats.orange, opStats.free, opStats.bouygues, opStats.stock_generique],
+                            backgroundColor: ['#f97316', '#e11d48', '#16a34a', '#64748b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            const ctxSoc = document.getElementById('chartSociete');
+            if (ctxSoc) {
+                if (chartSocInstance) chartSocInstance.destroy();
+                chartSocInstance = new Chart(ctxSoc, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Moba Fibre', 'Nexum & Co', 'Horizon Groupe'],
+                        datasets: [{
+                            label: 'Quantité en Stock',
+                            data: [totalMoba, totalNexum, totalHorizon],
+                            backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
         }
 
-        /* --- HISTORIQUE --- */
+        // 4. HISTORIQUE
         function renderHistoryTable() {
             const tbody = document.getElementById('history-table-body');
             const period = document.getElementById('filter-period').value;
             tbody.innerHTML = '';
 
             const now = new Date();
-            historyData.forEach(h => {
-                const hDate = new Date(h.horodatage);
-                if (period === 'today' && hDate.toDateString() !== now.toDateString()) return;
-                if (period === 'week' && (now - hDate) > 7 * 24 * 3600 * 1000) return;
-                if (period === 'month' && (hDate.getMonth() !== now.getMonth() || hDate.getFullYear() !== now.getFullYear())) return;
+            historyData.forEach(item => {
+                const dateObj = new Date(item.horodatage || item.created_at);
+                if (period === 'today' && dateObj.toDateString() !== now.toDateString()) return;
+                if (period === 'week' && (now - dateObj) > 7 * 86400000) return;
+                if (period === 'month' && (dateObj.getMonth() !== now.getMonth() || dateObj.getFullYear() !== now.getFullYear())) return;
 
-                const isOut = h.type_mouvement === 'SORTIE';
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                row.innerHTML = `
-                    <td class="p-3 text-slate-500 font-mono text-[10px]">${hDate.toLocaleString()}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isOut ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}">${h.type_mouvement}</span></td>
-                    <td class="p-3 text-blue-600 font-medium">${h.societe || ''} (${h.secteur || ''})</td>
-                    <td class="p-3 text-slate-700 font-medium">${h.operator || ''}</td>
-                    <td class="p-3 text-slate-900 font-medium">${h.designation}</td>
-                    <td class="p-3 text-center font-bold ${isOut ? 'text-rose-600' : 'text-emerald-600'}">${isOut ? '-' : '+'}${h.quantite}</td>
-                    <td class="p-3 text-slate-700">${h.intervenant}</td>
+                const isEntree = item.type_mouvement === 'ENTREE';
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-500">${dateObj.toLocaleDateString('fr-FR')} ${dateObj.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                            ${item.type_mouvement}
+                        </span>
+                    </td>
+                    <td class="p-3 font-semibold">${item.societe || '-'}</td>
+                    <td class="p-3 uppercase text-[10px]">${item.operateur || '-'}</td>
+                    <td class="p-3 font-medium text-slate-800">${item.designation}</td>
+                    <td class="p-3 text-center font-bold">${isEntree ? '+' : '-'}${item.quantite}</td>
+                    <td class="p-3 text-slate-600">${item.intervenant || '-'}</td>
                 `;
-                tbody.appendChild(row);
+                tbody.appendChild(tr);
             });
         }
 
-        /* --- IA CHECKING MULTI-MESSAGES / MULTI-TECHNICIENS --- */
+        // 5. IA CHECKING (PARSING WHATSAPP)
         function processIaCheckingText() {
-            const rawText = document.getElementById('ia-textarea').value;
-            if (!rawText.trim()) {
-                showToast("Avertissement", "Veuillez coller du texte d'abord.", "fa-exclamation-circle", "text-amber-500");
-                return;
-            }
+            const rawText = document.getElementById('ia-textarea').value.trim();
+            if (!rawText) return showToast("Attention", "Veuillez coller un message à analyser.", "fa-exclamation-circle", "text-amber-500");
 
             parsedIaItems = [];
-            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-            let currentTech = "Technicien Inconnu";
-            let currentType = "SORTIE"; 
+            const lines = rawText.split('\n');
+            let currentType = 'SORTIE';
+            let currentTech = 'Non précisé';
 
             lines.forEach(line => {
-                const lower = line.toLowerCase();
-                
-                if (lower.includes("retour") || lower.includes("reçu") || lower.includes("entrée") || lower.includes("rendu")) {
-                    currentType = "ENTREE";
-                } else if (lower.includes("sortie") || lower.includes("conso") || lower.includes("pris")) {
-                    currentType = "SORTIE";
+                const clean = line.trim();
+                if (!clean) return;
+
+                if (/retour|entr[ée]e/i.test(clean) && !/\d+/.test(clean)) {
+                    currentType = 'ENTREE';
+                    return;
+                }
+                if (/sortie|prise|mat[ée]riel/i.test(clean) && !/\d+/.test(clean)) {
+                    currentType = 'SORTIE';
+                    return;
                 }
 
-                if (!line.startsWith("-") && !line.includes(":") && !/\d+/.test(line)) {
-                    if (line.length > 2 && !lower.includes("matériel") && !lower.includes("stock")) {
-                        currentTech = line.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim();
-                        return;
-                    }
-                }
-
-                if (line.startsWith("-") || /\d+/.test(line)) {
-                    const clean = line.replace(/^-/, '').trim();
-                    const qtyMatch = clean.match(/(\d+)\s*(.*)/) || clean.match(/(.*?)\s*:\s*(\d+)/);
-
-                    let qty = 1;
-                    let rawMat = clean;
-
-                    if (qtyMatch) {
-                        if (!isNaN(parseInt(qtyMatch[1]))) {
-                            qty = parseInt(qtyMatch[1]);
-                            rawMat = qtyMatch[2] || clean;
-                        } else if (!isNaN(parseInt(qtyMatch[2]))) {
-                            qty = parseInt(qtyMatch[2]);
-                            rawMat = qtyMatch[1] || clean;
-                        }
-                    }
-
-                    rawMat = rawMat.replace(/^:\s*/, '').trim();
-                    const bestMatched = findBestMatchConsommable(rawMat);
-
-                    if (rawMat.length > 1) {
-                        parsedIaItems.push({
-                            id: Date.now() + Math.random().toString(36).substring(2, 6),
-                            type: currentType,
-                            tech: currentTech,
-                            rawName: rawMat,
-                            matchedName: bestMatched,
-                            qty: qty
-                        });
-                    }
+                // Détection d'une ligne article avec quantité (ex: "- PTO : 2" ou "Jarretière 5")
+                const itemMatch = clean.match(/^[-•*]?\s*([a-zA-ZÀ-ÿ0-9\s/()]+?)\s*[:=\-x]?\s*(\d+)\s*$/i);
+                if (itemMatch) {
+                    const rawName = itemMatch[1].trim();
+                    const qty = parseInt(itemMatch[2], 10);
+                    const matchedName = findBestMatchConsommable(rawName);
+                    parsedIaItems.push({
+                        type: currentType,
+                        tech: currentTech,
+                        rawName: rawName,
+                        designation: matchedName,
+                        qty: qty
+                    });
+                } else if (clean.length < 35 && !/\d/.test(clean)) {
+                    // Considéré comme le nom du technicien
+                    currentTech = clean.replace(/[:\-]/g, '').trim();
                 }
             });
 
-            renderIaCheckingList();
-            showToast("IA Checked", `${parsedIaItems.length} élément(s) extrait(s) !`, "fa-wand-magic-sparkles", "text-indigo-600");
+            renderIaDetectedList();
         }
 
-        function renderIaCheckingList() {
+        function renderIaDetectedList() {
             const container = document.getElementById('ia-detected-list');
-            document.getElementById('ia-count').innerText = parsedIaItems.length;
+            document.getElementById('ia-count').textContent = parsedIaItems.length;
             container.innerHTML = '';
 
-            if (parsedIaItems.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-slate-400 text-xs">Aucun matériel détecté dans ce message.</div>`;
+            if (!parsedIaItems.length) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Aucun article détecté. Vérifiez le format (ex: <code>- PTO : 2</code>).</div>`;
                 return;
             }
 
-            let optionsHtml = [...new Set(stockData.map(i => i.designation))].map(name => `<option value="${name}">${name}</option>`).join('');
-
-            parsedIaItems.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = "p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs";
-                card.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
-                        <div class="flex items-center gap-2">
-                            <select onchange="parsedIaItems[${index}].type=this.value" class="font-bold text-[11px] px-2 py-0.5 rounded-md ${item.type === 'SORTIE' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">
-                                <option value="SORTIE" ${item.type === 'SORTIE' ? 'selected' : ''}>SORTIE (-)</option>
-                                <option value="ENTREE" ${item.type === 'ENTREE' ? 'selected' : ''}>ENTRÉE (+)</option>
-                            </select>
-                            <input type="text" value="${item.tech}" oninput="parsedIaItems[${index}].tech=this.value" class="font-semibold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded-md text-xs">
+            parsedIaItems.forEach((item, idx) => {
+                const isEntree = item.type === 'ENTREE';
+                const div = document.createElement('div');
+                div.className = "p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2 text-xs";
+                div.innerHTML = `
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${item.type}</span>
+                            <span class="font-bold text-slate-800">${item.designation}</span>
                         </div>
-                        <button onclick="parsedIaItems.splice(${index},1); renderIaCheckingList();" class="text-slate-400 hover:text-rose-600"><i class="fas fa-trash"></i></button>
+                        <p class="text-[10px] text-slate-500">Tech: <b>${item.tech}</b> • Brut: "${item.rawName}"</p>
                     </div>
-
-                    <div class="grid grid-cols-3 gap-2 items-center">
-                        <div class="col-span-2">
-                            <label class="block text-[9px] text-slate-400">Match Officiel Stock :</label>
-                            <select onchange="parsedIaItems[${index}].matchedName=this.value" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-[11px] font-medium text-slate-800">
-                                ${optionsHtml}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[9px] text-slate-400 text-center">Quantité :</label>
-                            <input type="number" min="1" value="${item.qty}" oninput="parsedIaItems[${index}].qty=parseInt(this.value)||1" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-center font-bold text-xs">
-                        </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-sm ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${item.qty}</span>
+                        <button onclick="parsedIaItems.splice(${idx}, 1); renderIaDetectedList();" class="text-slate-400 hover:text-rose-600">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 `;
-
-                container.appendChild(card);
-                const sel = card.querySelectorAll('select')[1];
-                if (sel) sel.value = item.matchedName;
+                container.appendChild(div);
             });
         }
 
         async function applyIaMovementsToStock() {
-            if (parsedIaItems.length === 0) {
-                showToast("Erreur", "Aucune donnée à appliquer.", "fa-exclamation-triangle", "text-rose-600");
-                return;
-            }
+            if (!parsedIaItems.length) return showToast("Erreur", "Aucun mouvement à valider.", "fa-exclamation-triangle", "text-rose-600");
 
             const societe = document.getElementById('ia-societe').value;
             const secteur = document.getElementById('ia-secteur').value;
-            const operator = document.getElementById('ia-operator').value;
+            const operateur = document.getElementById('ia-operator').value;
 
-            let count = 0;
-            for (const item of parsedIaItems) {
-                const stockItem = stockData.find(s => s.designation === item.matchedName && s.secteur === secteur);
-                if (stockItem) {
-                    const currentVal = stockItem[operator] || 0;
-                    const newVal = item.type === 'ENTREE' ? currentVal + item.qty : Math.max(0, currentVal - item.qty);
+            showToast("Mise à jour", "Application des mouvements IA...", "fa-spinner fa-spin", "text-indigo-600");
 
-                    const { error } = await supabaseClient.from('stock_consommables').update({ [operator]: newVal }).eq('id', stockItem.id);
-                    if (!error) {
-                        stockItem[operator] = newVal;
-                        await supabaseClient.from('supabaseClient' in window ? 'stock_historique' : '').insert([{
-                            type_mouvement: item.type,
-                            societe: societe,
-                            secteur: secteur,
-                            operator: operator,
-                            designation: stockItem.designation,
-                            quantite: item.qty,
-                            intervenant: item.tech
-                        }]);
-                        count++;
+            try {
+                for (const item of parsedIaItems) {
+                    const targetItem = stockData.find(i => i.designation === item.designation && i.secteur === secteur);
+                    if (targetItem) {
+                        const currentVal = targetItem[societe] || 0;
+                        const newVal = item.type === 'ENTREE' ? currentVal + item.qty : Math.max(0, currentVal - item.qty);
+                        await supabaseClient.from('stock_consommables').update({ [societe]: newVal }).eq('id', targetItem.id);
                     }
+
+                    await supabaseClient.from('stock_historique').insert([{
+                        type_mouvement: item.type,
+                        societe: societe,
+                        operateur: operateur,
+                        designation: item.designation,
+                        quantite: item.qty,
+                        intervenant: item.tech,
+                        secteur: secteur
+                    }]);
                 }
-            }
 
-            if (count > 0) {
-                await loadSupabaseData();
-                showToast("IA Impact", `${count} article(s) mis à jour en base Supabase !`, "fa-check-circle", "text-emerald-600");
                 parsedIaItems = [];
+                renderIaDetectedList();
                 document.getElementById('ia-textarea').value = '';
-                renderIaCheckingList();
+                await loadSupabaseData();
+                showToast("Succès", "Stock mis à jour via IA Checking !", "fa-check-circle", "text-emerald-600");
+            } catch (e) {
+                console.error(e);
+                showToast("Erreur", "Impossible de mettre à jour Supabase.", "fa-exclamation-triangle", "text-rose-600");
             }
-        }
-
-        function exportStockCSV() {
-            let csv = "ID;Secteur;Désignation;Moba Fibre;Nexum & Co;Horizon Groupe;Total;Détails\n";
-            stockData.forEach(i => {
-                const tot = (i.moba_fibre||0) + (i.nexum_co||0) + (i.horizon_groupe||0) + (i.free||0) + (i.orange||0) + (i.bouygues||0) + (i.stock_generique||0);
-                csv += `${i.reference_id};"${i.secteur}";"${i.designation}";${i.moba_fibre||0};${i.nexum_co||0};${i.horizon_groupe||0};${tot};"${i.unite_details || ''}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', `Stock_Pro_Export_${new Date().toISOString().slice(0,10)}.csv`);
-            link.click();
-        }
-
-        function showToast(title, message, icon, colorClass) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastTitle').innerText = title;
-            document.getElementById('toastMessage').innerText = message;
-            document.getElementById('toastIcon').className = `fas ${icon} ${colorClass}`;
-            toast.classList.remove('translate-y-[-150%]', 'md:translate-x-full');
-            setTimeout(() => toast.classList.add('translate-y-[-150%]', 'md:translate-x-full'), 3500);
         }
     </script>
 </body>
