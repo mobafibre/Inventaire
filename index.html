@@ -154,7 +154,6 @@
                                 <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
                                     <th class="p-3 text-center">N°</th>
                                     <th class="p-3">Désignation</th>
-                                    <th class="p-3 text-center">Catégorie</th>
                                     <th class="p-3 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
                                     <th class="p-3 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
                                     <th class="p-3 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
@@ -541,7 +540,7 @@ Abderrahmane yeddou :
 
             tbody.innerHTML = '';
             if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Aucun article trouvé pour ces filtres.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Aucun article trouvé pour ces filtres.</td></tr>`;
                 return;
             }
 
@@ -940,7 +939,7 @@ Abderrahmane yeddou :
 
         function exportStockCSV() {
             const list = getCombinedStock();
-            const headers = ['Designation', 'Categorie', 'Depot', 'Moba', 'Nexum', 'Horizon_Orange', 'Alerte'];
+            const headers = ['Designation', 'Depot', 'Moba', 'Nexum', 'Horizon_Orange', 'Alerte'];
             const rows = list.map(i => [
                 `"${i.designation}"`,
                 i._cat,
@@ -962,3 +961,4 @@ Abderrahmane yeddou :
     </script>
 </body>
 </html>
+
