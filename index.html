@@ -97,7 +97,7 @@
             </h2>
 
             <div class="flex items-center gap-2">
-                <button onclick="loadSupabaseData()" class="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-semibold text-blue-700 flex items-center gap-1.5 transition border border-blue-200 shadow-sm">
+                <button onclick="loadSupabaseData(true)" class="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-xs font-semibold text-blue-700 flex items-center gap-1.5 transition border border-blue-200 shadow-sm">
                     <i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Actualiser</span>
                 </button>
                 <button onclick="exportStockCSV()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition border border-slate-200 shadow-sm">
@@ -374,7 +374,6 @@ Abderrahmane yeddou :
         const SUPABASE_ANON_KEY = "sb_publishable_rge0QLe1o9m50rHn9QKCDA_ItfPPAn6";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Dictionnaire Consommables (table stock_consommables)
         const CONSUMABLES_DICTIONARY = {
             "TOURET 500M": ["touret", "tourets", "touret 500m", "touret 500"],
             "PTO": ["pto", "ptos"],
@@ -384,7 +383,6 @@ Abderrahmane yeddou :
             "KIT APPART": ["kit appart", "kit", "kits", "kit appartement"]
         };
 
-        // Dictionnaire Outillage / Matériels (table stock_outillage -> colonne 'generique')
         const OUTILLAGE_DICTIONARY = {
             "CÔNES": ["cone", "cones", "cône", "cônes"],
             "AIGUILLES": ["aiguille", "aiguilles"],
@@ -417,7 +415,8 @@ Abderrahmane yeddou :
         let chartSocInstance = null;
 
         window.onload = async function() {
-            await loadSupabaseData();
+            handleTypeFilterChange(false);
+            await loadSupabaseData(false);
             addBatchRow();
         };
 
@@ -426,7 +425,6 @@ Abderrahmane yeddou :
         }
 
         function resolveStockColumn(table, societeSelection) {
-            // Les matériels sont toujours stockés sur la colonne 'generique'
             if (table === 'stock_outillage') return 'generique';
             return societeSelection || 'moba';
         }
@@ -497,24 +495,38 @@ Abderrahmane yeddou :
             return null;
         }
 
-        async function loadSupabaseData() {
-            try {
-                const [consRes, outRes, histRes] = await Promise.all([
-                    supabaseClient.from('stock_consommables').select('*').order('id', { ascending: true }),
-                    supabaseClient.from('stock_outillage').select('*').order('id', { ascending: true }),
-                    supabaseClient.from('stock_historique').select('*').order('id', { ascending false }).limit(300)
-                ]);
+        async function loadSupabaseData(notify = false) {
+            if (notify) {
+                showToast("Actualisation", "Chargement des données Supabase...", "fa-sync-alt fa-spin", "text-blue-600");
+            }
 
-                if (!consRes.error) consumablesData = (consRes.data || []).map(i => ({ ...i, _table: 'stock_consommables', _cat: 'Consommable' }));
-                if (!outRes.error) outillageData = (outRes.data || []).map(i => ({ ...i, _table: 'stock_outillage', _cat: 'Outillage' }));
-                if (!histRes.error) historyData = histRes.data || [];
+            const [consRes, outRes, histRes] = await Promise.allSettled([
+                supabaseClient.from('stock_consommables').select('*').order('id', { ascending: true }),
+                supabaseClient.from('stock_outillage').select('*').order('id', { ascending: true }),
+                supabaseClient.from('stock_historique').select('*').order('id', { ascending: false }).limit(300)
+            ]);
 
-                renderStockTable();
-                renderHistoryTable();
-                updateStats();
-            } catch (err) {
-                console.error(err);
-                showToast("Erreur", "Problème de chargement Supabase.", "fa-exclamation-triangle", "text-rose-600");
+            if (consRes.status === 'fulfilled' && !consRes.value.error) {
+                consumablesData = (consRes.value.data || []).map(i => ({ ...i, _table: 'stock_consommables', _cat: 'Consommable' }));
+            }
+            if (outRes.status === 'fulfilled' && !outRes.value.error) {
+                outillageData = (outRes.value.data || []).map(i => ({ ...i, _table: 'stock_outillage', _cat: 'Outillage' }));
+            }
+            if (histRes.status === 'fulfilled' && !histRes.value.error) {
+                historyData = histRes.value.data || [];
+            }
+
+            renderStockTable();
+            renderHistoryTable();
+            updateStats();
+
+            if (notify) {
+                const failed = [consRes, outRes, histRes].some(r => r.status === 'rejected' || r.value.error);
+                if (failed) {
+                    showToast("Partiel", "Données mises à jour (vérifiez la console si une table manque).", "fa-exclamation-triangle", "text-amber-600");
+                } else {
+                    showToast("Actualisé", "Données synchronisées avec Supabase.", "fa-check-circle", "text-emerald-600");
+                }
             }
         }
 
@@ -525,15 +537,14 @@ Abderrahmane yeddou :
             return [...consumablesData, ...outillageData];
         }
 
-        function handleTypeFilterChange() {
+        function handleTypeFilterChange(shouldRender = true) {
             const typeVal = document.getElementById('filter-type')?.value || '';
             const opSelect = document.getElementById('filter-operateur');
-            // Pour les matériels uniquement (colonne Générique), le filtre opérateur société est désactivé
             if (opSelect) {
                 opSelect.disabled = (typeVal === 'materiel');
                 opSelect.classList.toggle('opacity-50', typeVal === 'materiel');
             }
-            renderStockTable();
+            if (shouldRender) renderStockTable();
         }
 
         function renderStockTable() {
@@ -544,7 +555,6 @@ Abderrahmane yeddou :
             const search = normalizeStr(document.getElementById('stock-search')?.value || '');
             const isMaterielOnly = typeVal === 'materiel';
 
-            // En-tête : uniquement la colonne Générique pour les matériels, sans les choix de société
             if (isMaterielOnly) {
                 thead.innerHTML = `
                     <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
@@ -709,7 +719,7 @@ Abderrahmane yeddou :
 
             if (!count) return showToast("Attention", "Sélectionnez au moins un article valide.", "fa-exclamation-triangle", "text-amber-600");
             clearBatchRows();
-            await loadSupabaseData();
+            await loadSupabaseData(false);
             showToast("Succès", `${count} mouvement(s) enregistré(s).`, "fa-check-circle", "text-emerald-600");
         }
 
@@ -931,7 +941,7 @@ Abderrahmane yeddou :
                 parsedIaItems = [];
                 renderIaDetectedList();
                 document.getElementById('ia-textarea').value = '';
-                await loadSupabaseData();
+                await loadSupabaseData(false);
                 showToast("Succès", "Stock et historique mis à jour !", "fa-check-circle", "text-emerald-600");
             } catch (e) {
                 console.error(e);
