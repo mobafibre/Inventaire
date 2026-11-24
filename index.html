@@ -149,18 +149,8 @@
 
                     <!-- VUE TABLEAU STOCK -->
                     <div id="stock-table-wrapper" class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200 flex flex-col">
-                        <table class="w-full text-left border-collapse min-w-[600px]">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
-                                    <th class="p-3 text-center">N°</th>
-                                    <th class="p-3">Désignation</th>
-                                    <th class="p-3 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
-                                    <th class="p-3 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
-                                    <th class="p-3 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
-                                    <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
-                                    <th class="p-3 text-center">Alerte</th>
-                                </tr>
-                            </thead>
+                        <table class="w-full text-left border-collapse min-w-[650px]">
+                            <thead id="stock-table-head"></thead>
                             <tbody id="stock-table-body" class="divide-y divide-slate-100 text-[11px] font-medium text-slate-700"></tbody>
                         </table>
                     </div>
@@ -208,7 +198,7 @@
                     </div>
 
                     <!-- Cartes de statistiques rapide (KPI) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 rounded-2xl">
                             <span class="text-xs text-blue-600 font-semibold block mb-1">Moba Fibre</span>
                             <span id="kpi-moba" class="text-2xl font-extrabold text-blue-900">0</span>
@@ -220,6 +210,10 @@
                         <div class="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 p-4 rounded-2xl">
                             <span class="text-xs text-purple-600 font-semibold block mb-1">Horizon Groupe</span>
                             <span id="kpi-horizon" class="text-2xl font-extrabold text-purple-900">0</span>
+                        </div>
+                        <div class="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-100 p-4 rounded-2xl">
+                            <span class="text-xs text-teal-600 font-semibold block mb-1">Générique (Matériels)</span>
+                            <span id="kpi-generique" class="text-2xl font-extrabold text-teal-900">0</span>
                         </div>
                     </div>
 
@@ -235,7 +229,7 @@
                         </div>
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                             <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
-                                <span>Répartition Totale du Stock par Société</span>
+                                <span>Répartition Totale du Stock par Société / Générique</span>
                                 <i class="fas fa-chart-bar text-slate-400"></i>
                             </h4>
                             <div class="w-full h-56 md:h-64 relative">
@@ -267,7 +261,7 @@
                                 <tr class="bg-slate-50 text-slate-600 text-[11px] font-bold border-b border-slate-200">
                                     <th class="p-3">Date</th>
                                     <th class="p-3">Type</th>
-                                    <th class="p-3">Société</th>
+                                    <th class="p-3">Société / Colonne</th>
                                     <th class="p-3">Opérateur</th>
                                     <th class="p-3">Désignation</th>
                                     <th class="p-3 text-center">Qté</th>
@@ -298,11 +292,12 @@
 
                             <div class="grid grid-cols-3 gap-2">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société (Consommables)</label>
                                     <select id="ia-societe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
                                         <option value="moba">Moba Fibre</option>
                                         <option value="nexum">Nexum & Co</option>
                                         <option value="orange">Horizon / Orange</option>
+                                        <option value="generique">Générique</option>
                                     </select>
                                 </div>
                                 <div>
@@ -332,8 +327,7 @@
 Abderrahmane yeddou : 
 - 1 touret 
 - 10 pto
-- 50 jarretière 
-- 2 pre-cable"></textarea>
+- 2 echelles"></textarea>
                             </div>
                         </div>
 
@@ -390,7 +384,7 @@ Abderrahmane yeddou :
             "KIT APPART": ["kit appart", "kit", "kits", "kit appartement"]
         };
 
-        // Dictionnaire Outillage / Matériels (table stock_outillage)
+        // Dictionnaire Outillage / Matériels (table stock_outillage -> colonne 'generique')
         const OUTILLAGE_DICTIONARY = {
             "CÔNES": ["cone", "cones", "cône", "cônes"],
             "AIGUILLES": ["aiguille", "aiguilles"],
@@ -426,6 +420,16 @@ Abderrahmane yeddou :
             await loadSupabaseData();
             addBatchRow();
         };
+
+        function getGeneriqueValue(item) {
+            return Number(item.generique ?? item.stock_generique ?? 0);
+        }
+
+        function resolveStockColumn(table, societeSelection) {
+            // Les matériels sont toujours stockés sur la colonne 'generique'
+            if (table === 'stock_outillage') return 'generique';
+            return societeSelection || 'moba';
+        }
 
         function showToast(title, message, icon = "fa-info-circle", colorClass = "text-blue-500") {
             const toast = document.getElementById('toast');
@@ -498,7 +502,7 @@ Abderrahmane yeddou :
                 const [consRes, outRes, histRes] = await Promise.all([
                     supabaseClient.from('stock_consommables').select('*').order('id', { ascending: true }),
                     supabaseClient.from('stock_outillage').select('*').order('id', { ascending: true }),
-                    supabaseClient.from('stock_historique').select('*').order('id', { ascending: false }).limit(300)
+                    supabaseClient.from('stock_historique').select('*').order('id', { ascending false }).limit(300)
                 ]);
 
                 if (!consRes.error) consumablesData = (consRes.data || []).map(i => ({ ...i, _table: 'stock_consommables', _cat: 'Consommable' }));
@@ -522,13 +526,49 @@ Abderrahmane yeddou :
         }
 
         function handleTypeFilterChange() {
+            const typeVal = document.getElementById('filter-type')?.value || '';
+            const opSelect = document.getElementById('filter-operateur');
+            // Pour les matériels uniquement (colonne Générique), le filtre opérateur société est désactivé
+            if (opSelect) {
+                opSelect.disabled = (typeVal === 'materiel');
+                opSelect.classList.toggle('opacity-50', typeVal === 'materiel');
+            }
             renderStockTable();
         }
 
         function renderStockTable() {
+            const thead = document.getElementById('stock-table-head');
             const tbody = document.getElementById('stock-table-body');
+            const typeVal = document.getElementById('filter-type')?.value || '';
             const secteur = document.getElementById('filter-secteur')?.value || '';
             const search = normalizeStr(document.getElementById('stock-search')?.value || '');
+            const isMaterielOnly = typeVal === 'materiel';
+
+            // En-tête : uniquement la colonne Générique pour les matériels, sans les choix de société
+            if (isMaterielOnly) {
+                thead.innerHTML = `
+                    <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
+                        <th class="p-3 text-center">N°</th>
+                        <th class="p-3">Désignation</th>
+                        <th class="p-3 text-center text-teal-700 bg-teal-50/60">Générique</th>
+                        <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
+                        <th class="p-3 text-center">Alerte</th>
+                    </tr>
+                `;
+            } else {
+                thead.innerHTML = `
+                    <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
+                        <th class="p-3 text-center">N°</th>
+                        <th class="p-3">Désignation</th>
+                        <th class="p-3 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
+                        <th class="p-3 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
+                        <th class="p-3 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
+                        <th class="p-3 text-center text-teal-700 bg-teal-50/60">Générique</th>
+                        <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
+                        <th class="p-3 text-center">Alerte</th>
+                    </tr>
+                `;
+            }
 
             let list = getCombinedStock();
             if (secteur) {
@@ -538,9 +578,10 @@ Abderrahmane yeddou :
                 list = list.filter(item => normalizeStr(item.designation).includes(search));
             }
 
+            const colSpan = isMaterielOnly ? 5 : 8;
             tbody.innerHTML = '';
             if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Aucun article trouvé pour ces filtres.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-slate-400">Aucun article trouvé pour ces filtres.</td></tr>`;
                 return;
             }
 
@@ -548,21 +589,34 @@ Abderrahmane yeddou :
                 const moba = Number(item.moba ?? item.moba_fibre ?? 0);
                 const nexum = Number(item.nexum ?? item.nexum_co ?? 0);
                 const horizon = Number(item.orange ?? item.horizon_groupe ?? 0);
-                const total = moba + nexum + horizon;
+                const generique = getGeneriqueValue(item);
+                const total = isMaterielOnly ? generique : (moba + nexum + horizon + generique);
                 const seuil = Number(item.seuil_alerte ?? 2);
                 const isLow = total <= seuil;
 
                 const tr = document.createElement('tr');
                 tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
-                tr.innerHTML = `
-                    <td class="p-3 text-center text-slate-400">${idx + 1}</td>
-                    <td class="p-3 font-bold text-slate-800">${item.designation}</td>
-                    <td class="p-3 text-center font-semibold text-blue-700 bg-blue-50/30">${moba}</td>
-                    <td class="p-3 text-center font-semibold text-amber-700 bg-amber-50/30">${nexum}</td>
-                    <td class="p-3 text-center font-semibold text-purple-700 bg-purple-50/30">${horizon}</td>
-                    <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
-                    <td class="p-3 text-center">${isLow ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">Stock Bas</span>' : '<span class="text-slate-400 text-[10px]">OK</span>'}</td>
-                `;
+
+                if (isMaterielOnly) {
+                    tr.innerHTML = `
+                        <td class="p-3 text-center text-slate-400">${idx + 1}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.designation}</td>
+                        <td class="p-3 text-center font-bold text-teal-700 bg-teal-50/30">${generique}</td>
+                        <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
+                        <td class="p-3 text-center">${isLow ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">Stock Bas</span>' : '<span class="text-slate-400 text-[10px]">OK</span>'}</td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="p-3 text-center text-slate-400">${idx + 1}</td>
+                        <td class="p-3 font-bold text-slate-800">${item.designation}</td>
+                        <td class="p-3 text-center font-semibold text-blue-700 bg-blue-50/30">${moba}</td>
+                        <td class="p-3 text-center font-semibold text-amber-700 bg-amber-50/30">${nexum}</td>
+                        <td class="p-3 text-center font-semibold text-purple-700 bg-purple-50/30">${horizon}</td>
+                        <td class="p-3 text-center font-bold text-teal-700 bg-teal-50/30">${generique}</td>
+                        <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
+                        <td class="p-3 text-center">${isLow ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">Stock Bas</span>' : '<span class="text-slate-400 text-[10px]">OK</span>'}</td>
+                    `;
+                }
                 tbody.appendChild(tr);
             });
         }
@@ -571,7 +625,7 @@ Abderrahmane yeddou :
             const all = [...consumablesData, ...outillageData];
             document.getElementById('stat-total-refs').textContent = all.length;
             const lowCount = all.filter(item => {
-                const total = Number(item.moba ?? 0) + Number(item.nexum ?? 0) + Number(item.orange ?? 0);
+                const total = Number(item.moba ?? 0) + Number(item.nexum ?? 0) + Number(item.orange ?? 0) + getGeneriqueValue(item);
                 return total <= Number(item.seuil_alerte ?? 2);
             }).length;
             document.getElementById('stat-low-stock').textContent = lowCount;
@@ -583,7 +637,7 @@ Abderrahmane yeddou :
             return `
                 <option value="">-- Choisir un article --</option>
                 <optgroup label="Consommables">${consOpts}</optgroup>
-                <optgroup label="Outillage / Matériels">${outOpts}</optgroup>
+                <optgroup label="Outillage / Matériels (Colonne Générique)">${outOpts}</optgroup>
             `;
         }
 
@@ -600,8 +654,9 @@ Abderrahmane yeddou :
                     <option value="moba">Moba Fibre</option>
                     <option value="nexum">Nexum & Co</option>
                     <option value="orange">Horizon / Orange</option>
+                    <option value="generique">Générique</option>
                 </select>
-                <select class="row-designation sm:col-span-2 bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
+                <select onchange="handleBatchRowItemChange(this)" class="row-designation sm:col-span-2 bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
                     ${getAllOptionsHtml()}
                 </select>
                 <input type="number" min="1" value="1" class="row-qty bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-bold text-center" placeholder="Qté">
@@ -611,6 +666,20 @@ Abderrahmane yeddou :
                 </div>
             `;
             container.appendChild(row);
+        }
+
+        function handleBatchRowItemChange(selectEl) {
+            const row = selectEl.closest('.batch-row');
+            const socSelect = row.querySelector('.row-societe');
+            const isOutillage = selectEl.selectedOptions[0]?.dataset?.table === 'stock_outillage';
+            if (isOutillage) {
+                socSelect.value = 'generique';
+                socSelect.disabled = true;
+                socSelect.classList.add('opacity-60');
+            } else {
+                socSelect.disabled = false;
+                socSelect.classList.remove('opacity-60');
+            }
         }
 
         function clearBatchRows() {
@@ -768,6 +837,8 @@ Abderrahmane yeddou :
                         ? 'bg-amber-100 text-amber-800 border border-amber-300'
                         : (isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700');
 
+                    const colLabel = item.table === 'stock_outillage' ? 'Colonne : Générique' : `Colonne : ${document.getElementById('ia-societe')?.value || 'moba'}`;
+
                     html += `
                         <div class="p-2.5 flex items-center justify-between gap-2 text-xs ${!item.isValid ? 'bg-amber-50/50' : ''}">
                             <div class="space-y-0.5">
@@ -776,6 +847,7 @@ Abderrahmane yeddou :
                                         ${item.type}
                                     </button>
                                     <span class="font-bold text-slate-800">${item.designation}</span>
+                                    <span class="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-semibold">${colLabel}</span>
                                 </div>
                                 <p class="text-[10px] text-slate-400">Brut : "${item.rawName}"</p>
                             </div>
@@ -801,13 +873,14 @@ Abderrahmane yeddou :
         }
 
         async function applySingleMovement({ type, societe, designation, table, qty, tech, secteur, dateStr }) {
+            const colToUpdate = resolveStockColumn(table, societe);
             const sourceList = table === 'stock_outillage' ? outillageData : consumablesData;
             const targetItem = sourceList.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
 
             if (targetItem) {
-                const currentVal = Number(targetItem[societe] ?? 0);
+                const currentVal = Number(targetItem[colToUpdate] ?? 0);
                 const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
-                await supabaseClient.from(table).update({ [societe]: newVal }).eq('id', targetItem.id);
+                await supabaseClient.from(table).update({ [colToUpdate]: newVal }).eq('id', targetItem.id);
             }
 
             let isoDate = new Date().toISOString().split('T')[0];
@@ -818,7 +891,7 @@ Abderrahmane yeddou :
 
             await supabaseClient.from('stock_historique').insert([{
                 type_mouvement: type,
-                societe,
+                societe: colToUpdate,
                 operateur: document.getElementById('ia-operator')?.value || 'stock_generique',
                 designation,
                 quantite: qty,
@@ -894,10 +967,12 @@ Abderrahmane yeddou :
             const sumMoba = all.reduce((acc, i) => acc + Number(i.moba ?? 0), 0);
             const sumNexum = all.reduce((acc, i) => acc + Number(i.nexum ?? 0), 0);
             const sumHorizon = all.reduce((acc, i) => acc + Number(i.orange ?? 0), 0);
+            const sumGenerique = all.reduce((acc, i) => acc + getGeneriqueValue(i), 0);
 
             document.getElementById('kpi-moba').textContent = sumMoba;
             document.getElementById('kpi-nexum').textContent = sumNexum;
             document.getElementById('kpi-horizon').textContent = sumHorizon;
+            document.getElementById('kpi-generique').textContent = sumGenerique;
 
             const opTotals = {};
             historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
@@ -912,7 +987,7 @@ Abderrahmane yeddou :
                     labels: Object.keys(opTotals).length ? Object.keys(opTotals) : ['Aucune sortie'],
                     datasets: [{
                         data: Object.values(opTotals).length ? Object.values(opTotals) : [1],
-                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6']
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#0d9488']
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -922,11 +997,11 @@ Abderrahmane yeddou :
             chartSocInstance = new Chart(document.getElementById('chartSociete'), {
                 type: 'bar',
                 data: {
-                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon / Orange'],
+                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon / Orange', 'Générique'],
                     datasets: [{
                         label: 'Quantité en stock',
-                        data: [sumMoba, sumNexum, sumHorizon],
-                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+                        data: [sumMoba, sumNexum, sumHorizon, sumGenerique],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#0d9488'],
                         borderRadius: 8
                     }]
                 },
@@ -935,16 +1010,36 @@ Abderrahmane yeddou :
         }
 
         function exportStockCSV() {
+            const typeVal = document.getElementById('filter-type')?.value || '';
+            const isMaterielOnly = typeVal === 'materiel';
             const list = getCombinedStock();
-            const headers = ['Designation', 'Depot', 'Moba', 'Nexum', 'Horizon_Orange', 'Alerte'];
+
+            if (isMaterielOnly) {
+                const headers = ['Designation', 'Depot', 'Generique', 'Alerte'];
+                const rows = list.map(i => [
+                    `"${i.designation}"`,
+                    i.secteur || '',
+                    getGeneriqueValue(i),
+                    Number(i.seuil_alerte ?? 2)
+                ].join(';'));
+                downloadCsv(headers, rows);
+                return;
+            }
+
+            const headers = ['Designation', 'Depot', 'Moba', 'Nexum', 'Horizon_Orange', 'Generique', 'Alerte'];
             const rows = list.map(i => [
                 `"${i.designation}"`,
                 i.secteur || '',
                 Number(i.moba ?? 0),
                 Number(i.nexum ?? 0),
                 Number(i.orange ?? 0),
+                getGeneriqueValue(i),
                 Number(i.seuil_alerte ?? 2)
             ].join(';'));
+            downloadCsv(headers, rows);
+        }
+
+        function downloadCsv(headers, rows) {
             const csv = [headers.join(';'), ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
