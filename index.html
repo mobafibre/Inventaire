@@ -137,7 +137,7 @@
                                 <option value="orange">Orange</option>
                                 <option value="free">Free</option>
                                 <option value="bouygues">Bouygues</option>
-                                <option value="stock_generique">Générique / Stock</option>
+                                <option value="stock_generique">Générique (Commun)</option>
                             </select>
 
                             <div class="relative col-span-2 sm:w-56">
@@ -149,7 +149,7 @@
 
                     <!-- VUE TABLEAU STOCK -->
                     <div id="stock-table-wrapper" class="flex-1 overflow-x-auto overflow-y-auto mt-3 rounded-xl border border-slate-200 flex flex-col">
-                        <table class="w-full text-left border-collapse min-w-[650px]">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead id="stock-table-head"></thead>
                             <tbody id="stock-table-body" class="divide-y divide-slate-100 text-[11px] font-medium text-slate-700"></tbody>
                         </table>
@@ -166,7 +166,7 @@
                             <h3 class="font-bold text-base md:text-xl text-slate-900 flex items-center gap-2">
                                 <i class="fas fa-right-left text-amber-500"></i> Formulaire d'Entrée & Sortie
                             </h3>
-                            <p class="text-xs text-slate-500">Ajoutez ou déduisez du matériel directement sur le stock.</p>
+                            <p class="text-xs text-slate-500">Ordre : Type → Société → Article → Opérateur → Quantité → Technicien.</p>
                         </div>
                         <button onclick="addBatchRow()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition shadow-sm">
                             <i class="fas fa-plus"></i> Ajouter une ligne
@@ -198,7 +198,7 @@
                     </div>
 
                     <!-- Cartes de statistiques rapide (KPI) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 rounded-2xl">
                             <span class="text-xs text-blue-600 font-semibold block mb-1">Moba Fibre</span>
                             <span id="kpi-moba" class="text-2xl font-extrabold text-blue-900">0</span>
@@ -210,10 +210,6 @@
                         <div class="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100 p-4 rounded-2xl">
                             <span class="text-xs text-purple-600 font-semibold block mb-1">Horizon Groupe</span>
                             <span id="kpi-horizon" class="text-2xl font-extrabold text-purple-900">0</span>
-                        </div>
-                        <div class="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-100 p-4 rounded-2xl">
-                            <span class="text-xs text-teal-600 font-semibold block mb-1">Générique (Matériels)</span>
-                            <span id="kpi-generique" class="text-2xl font-extrabold text-teal-900">0</span>
                         </div>
                     </div>
 
@@ -229,7 +225,7 @@
                         </div>
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                             <h4 class="font-bold text-xs text-slate-700 mb-3 flex items-center justify-between">
-                                <span>Répartition Totale du Stock par Société / Générique</span>
+                                <span>Répartition Totale du Stock par Société</span>
                                 <i class="fas fa-chart-bar text-slate-400"></i>
                             </h4>
                             <div class="w-full h-56 md:h-64 relative">
@@ -261,7 +257,7 @@
                                 <tr class="bg-slate-50 text-slate-600 text-[11px] font-bold border-b border-slate-200">
                                     <th class="p-3">Date</th>
                                     <th class="p-3">Type</th>
-                                    <th class="p-3">Société / Colonne</th>
+                                    <th class="p-3">Société</th>
                                     <th class="p-3">Opérateur</th>
                                     <th class="p-3">Désignation</th>
                                     <th class="p-3 text-center">Qté</th>
@@ -292,12 +288,11 @@
 
                             <div class="grid grid-cols-3 gap-2">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société (Consommables)</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société</label>
                                     <select id="ia-societe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
-                                        <option value="moba">Moba Fibre</option>
+                                        <option value="moba" selected>Moba Fibre</option>
                                         <option value="nexum">Nexum & Co</option>
-                                        <option value="orange">Horizon / Orange</option>
-                                        <option value="generique">Générique</option>
+                                        <option value="orange">Horizon Groupe</option>
                                     </select>
                                 </div>
                                 <div>
@@ -310,7 +305,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Opérateur</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Opérateur (Type)</label>
                                     <select id="ia-operator" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
                                         <option value="orange">Orange</option>
                                         <option value="free">Free</option>
@@ -327,7 +322,8 @@
 Abderrahmane yeddou : 
 - 1 touret 
 - 10 pto
-- 2 echelles"></textarea>
+- 50 jarretière 
+- 2 pre-cable"></textarea>
                             </div>
                         </div>
 
@@ -420,13 +416,18 @@ Abderrahmane yeddou :
             addBatchRow();
         };
 
-        function getGeneriqueValue(item) {
-            return Number(item.generique ?? item.stock_generique ?? 0);
+        // Consommables existants affectés à Moba Fibre (horizon_groupe / orange = 0)
+        function getConsumableSocieteValues(item) {
+            const existingHorizon = Number(item.horizon_groupe ?? item.orange ?? 0);
+            const moba = Number(item.moba ?? item.moba_fibre ?? 0) + existingHorizon;
+            const nexum = Number(item.nexum ?? item.nexum_co ?? 0);
+            const horizon = 0;
+            return { moba, nexum, horizon, total: moba + nexum + horizon };
         }
 
-        function resolveStockColumn(table, societeSelection) {
-            if (table === 'stock_outillage') return 'generique';
-            return societeSelection || 'moba';
+        // Quantité matériels depuis la table stock_outillage (ex: ('CÔNES', 9, 'Unités') -> total = 9)
+        function getMaterielTotal(item) {
+            return Number(item.quantite ?? item.total ?? item.stock ?? item.generique ?? item.moba ?? 0);
         }
 
         function showToast(title, message, icon = "fa-info-circle", colorClass = "text-blue-500") {
@@ -516,6 +517,7 @@ Abderrahmane yeddou :
                 historyData = histRes.value.data || [];
             }
 
+            refreshAllBatchRowArticleSelects();
             renderStockTable();
             renderHistoryTable();
             updateStats();
@@ -560,8 +562,8 @@ Abderrahmane yeddou :
                     <tr class="bg-slate-50 text-slate-700 text-[11px] font-bold border-b border-slate-200">
                         <th class="p-3 text-center">N°</th>
                         <th class="p-3">Désignation</th>
-                        <th class="p-3 text-center text-teal-700 bg-teal-50/60">Générique</th>
                         <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
+                        <th class="p-3 text-center">Unité</th>
                         <th class="p-3 text-center">Alerte</th>
                     </tr>
                 `;
@@ -573,7 +575,6 @@ Abderrahmane yeddou :
                         <th class="p-3 text-center text-blue-700 bg-blue-50/60">Moba Fibre</th>
                         <th class="p-3 text-center text-amber-700 bg-amber-50/60">Nexum & Co</th>
                         <th class="p-3 text-center text-purple-700 bg-purple-50/60">Horizon Groupe</th>
-                        <th class="p-3 text-center text-teal-700 bg-teal-50/60">Générique</th>
                         <th class="p-3 text-center text-emerald-700 bg-emerald-50/60">Total</th>
                         <th class="p-3 text-center">Alerte</th>
                     </tr>
@@ -588,7 +589,7 @@ Abderrahmane yeddou :
                 list = list.filter(item => normalizeStr(item.designation).includes(search));
             }
 
-            const colSpan = isMaterielOnly ? 5 : 8;
+            const colSpan = isMaterielOnly ? 5 : 7;
             tbody.innerHTML = '';
             if (!list.length) {
                 tbody.innerHTML = `<tr><td colspan="${colSpan}" class="p-6 text-center text-slate-400">Aucun article trouvé pour ces filtres.</td></tr>`;
@@ -596,38 +597,41 @@ Abderrahmane yeddou :
             }
 
             list.forEach((item, idx) => {
-                const moba = Number(item.moba ?? item.moba_fibre ?? 0);
-                const nexum = Number(item.nexum ?? item.nexum_co ?? 0);
-                const horizon = Number(item.orange ?? item.horizon_groupe ?? 0);
-                const generique = getGeneriqueValue(item);
-                const total = isMaterielOnly ? generique : (moba + nexum + horizon + generique);
+                const isMat = item._table === 'stock_outillage';
                 const seuil = Number(item.seuil_alerte ?? 2);
-                const isLow = total <= seuil;
 
-                const tr = document.createElement('tr');
-                tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
+                if (isMaterielOnly || isMat) {
+                    const total = getMaterielTotal(item);
+                    const unite = item.unite || 'Unités';
+                    const isLow = total <= seuil;
 
-                if (isMaterielOnly) {
+                    const tr = document.createElement('tr');
+                    tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
                     tr.innerHTML = `
                         <td class="p-3 text-center text-slate-400">${idx + 1}</td>
                         <td class="p-3 font-bold text-slate-800">${item.designation}</td>
-                        <td class="p-3 text-center font-bold text-teal-700 bg-teal-50/30">${generique}</td>
                         <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
+                        <td class="p-3 text-center text-slate-600">${unite}</td>
                         <td class="p-3 text-center">${isLow ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">Stock Bas</span>' : '<span class="text-slate-400 text-[10px]">OK</span>'}</td>
                     `;
+                    tbody.appendChild(tr);
                 } else {
+                    const { moba, nexum, horizon, total } = getConsumableSocieteValues(item);
+                    const isLow = total <= seuil;
+
+                    const tr = document.createElement('tr');
+                    tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
                     tr.innerHTML = `
                         <td class="p-3 text-center text-slate-400">${idx + 1}</td>
                         <td class="p-3 font-bold text-slate-800">${item.designation}</td>
                         <td class="p-3 text-center font-semibold text-blue-700 bg-blue-50/30">${moba}</td>
                         <td class="p-3 text-center font-semibold text-amber-700 bg-amber-50/30">${nexum}</td>
                         <td class="p-3 text-center font-semibold text-purple-700 bg-purple-50/30">${horizon}</td>
-                        <td class="p-3 text-center font-bold text-teal-700 bg-teal-50/30">${generique}</td>
                         <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
                         <td class="p-3 text-center">${isLow ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">Stock Bas</span>' : '<span class="text-slate-400 text-[10px]">OK</span>'}</td>
                     `;
+                    tbody.appendChild(tr);
                 }
-                tbody.appendChild(tr);
             });
         }
 
@@ -635,39 +639,69 @@ Abderrahmane yeddou :
             const all = [...consumablesData, ...outillageData];
             document.getElementById('stat-total-refs').textContent = all.length;
             const lowCount = all.filter(item => {
-                const total = Number(item.moba ?? 0) + Number(item.nexum ?? 0) + Number(item.orange ?? 0) + getGeneriqueValue(item);
+                const total = item._table === 'stock_outillage'
+                    ? getMaterielTotal(item)
+                    : getConsumableSocieteValues(item).total;
                 return total <= Number(item.seuil_alerte ?? 2);
             }).length;
             document.getElementById('stat-low-stock').textContent = lowCount;
         }
 
-        function getAllOptionsHtml() {
-            const consOpts = Object.keys(CONSUMABLES_DICTIONARY).map(k => `<option value="${k}" data-table="stock_consommables">${k}</option>`).join('');
-            const outOpts = Object.keys(OUTILLAGE_DICTIONARY).map(k => `<option value="${k}" data-table="stock_outillage">${k}</option>`).join('');
+        // Articles exactement pareils à ceux présents dans le stock (avec repli sur dictionnaires si stock vide)
+        function getStockArticleOptionsHtml(selectedVal = "") {
+            const consNames = consumablesData.length
+                ? [...new Set(consumablesData.map(i => i.designation).filter(Boolean))]
+                : Object.keys(CONSUMABLES_DICTIONARY);
+
+            const outNames = outillageData.length
+                ? [...new Set(outillageData.map(i => i.designation).filter(Boolean))]
+                : Object.keys(OUTILLAGE_DICTIONARY);
+
+            const consOpts = consNames
+                .map(name => `<option value="${name}" data-table="stock_consommables" ${selectedVal === name ? 'selected' : ''}>${name}</option>`)
+                .join('');
+
+            const outOpts = outNames
+                .map(name => `<option value="${name}" data-table="stock_outillage" ${selectedVal === name ? 'selected' : ''}>${name}</option>`)
+                .join('');
+
             return `
-                <option value="">-- Choisir un article --</option>
+                <option value="">-- Choisir l'article --</option>
                 <optgroup label="Consommables">${consOpts}</optgroup>
-                <optgroup label="Outillage / Matériels (Colonne Générique)">${outOpts}</optgroup>
+                <optgroup label="Matériels">${outOpts}</optgroup>
             `;
         }
 
+        function refreshAllBatchRowArticleSelects() {
+            document.querySelectorAll('.row-designation').forEach(sel => {
+                const current = sel.value;
+                sel.innerHTML = getStockArticleOptionsHtml(current);
+            });
+        }
+
+        // Ordre demandé : Entrée/Sortie -> Société -> Article -> Opérateur -> Quantité -> Technicien
         function addBatchRow() {
             const container = document.getElementById('batch-rows-container');
             const row = document.createElement('div');
-            row.className = "batch-row grid grid-cols-1 sm:grid-cols-6 gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 items-center text-xs";
+            row.className = "batch-row grid grid-cols-1 sm:grid-cols-7 gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 items-center text-xs";
             row.innerHTML = `
                 <select class="row-type bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-bold">
-                    <option value="SORTIE">SORTIE (-)</option>
                     <option value="ENTREE">ENTREE (+)</option>
+                    <option value="SORTIE">SORTIE (-)</option>
                 </select>
                 <select class="row-societe bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
                     <option value="moba">Moba Fibre</option>
                     <option value="nexum">Nexum & Co</option>
-                    <option value="orange">Horizon / Orange</option>
-                    <option value="generique">Générique</option>
+                    <option value="orange">Horizon Groupe</option>
                 </select>
                 <select onchange="handleBatchRowItemChange(this)" class="row-designation sm:col-span-2 bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
-                    ${getAllOptionsHtml()}
+                    ${getStockArticleOptionsHtml()}
+                </select>
+                <select class="row-operateur bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
+                    <option value="orange">Orange</option>
+                    <option value="free">Free</option>
+                    <option value="bouygues">Bouygues</option>
+                    <option value="stock_generique">Générique</option>
                 </select>
                 <input type="number" min="1" value="1" class="row-qty bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-bold text-center" placeholder="Qté">
                 <div class="flex items-center gap-1.5">
@@ -683,12 +717,11 @@ Abderrahmane yeddou :
             const socSelect = row.querySelector('.row-societe');
             const isOutillage = selectEl.selectedOptions[0]?.dataset?.table === 'stock_outillage';
             if (isOutillage) {
-                socSelect.value = 'generique';
                 socSelect.disabled = true;
-                socSelect.classList.add('opacity-60');
+                socSelect.classList.add('opacity-50');
             } else {
                 socSelect.disabled = false;
-                socSelect.classList.remove('opacity-60');
+                socSelect.classList.remove('opacity-50');
             }
         }
 
@@ -708,16 +741,17 @@ Abderrahmane yeddou :
                 const selectEl = row.querySelector('.row-designation');
                 const designation = selectEl.value;
                 const table = selectEl.selectedOptions[0]?.dataset?.table || 'stock_consommables';
+                const operateur = row.querySelector('.row-operateur').value;
                 const qty = parseInt(row.querySelector('.row-qty').value, 10);
                 const tech = row.querySelector('.row-tech').value.trim() || 'Non spécifié';
 
                 if (!designation || !qty || qty <= 0) continue;
 
-                await applySingleMovement({ type, societe, designation, table, qty, tech, secteur, dateStr: new Date().toLocaleDateString('fr-FR') });
+                await applySingleMovement({ type, societe, designation, table, operateur, qty, tech, secteur, dateStr: new Date().toLocaleDateString('fr-FR') });
                 count++;
             }
 
-            if (!count) return showToast("Attention", "Sélectionnez au moins un article valide.", "fa-exclamation-triangle", "text-amber-600");
+            if (!count) return showToast("Attention", "Sélectionnez au moins un article et une quantité valide.", "fa-exclamation-triangle", "text-amber-600");
             clearBatchRows();
             await loadSupabaseData(false);
             showToast("Succès", `${count} mouvement(s) enregistré(s).`, "fa-check-circle", "text-emerald-600");
@@ -847,7 +881,9 @@ Abderrahmane yeddou :
                         ? 'bg-amber-100 text-amber-800 border border-amber-300'
                         : (isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700');
 
-                    const colLabel = item.table === 'stock_outillage' ? 'Colonne : Générique' : `Colonne : ${document.getElementById('ia-societe')?.value || 'moba'}`;
+                    const targetLabel = item.table === 'stock_outillage'
+                        ? 'Total Matériel'
+                        : `Société : ${document.getElementById('ia-societe')?.value || 'moba'}`;
 
                     html += `
                         <div class="p-2.5 flex items-center justify-between gap-2 text-xs ${!item.isValid ? 'bg-amber-50/50' : ''}">
@@ -857,7 +893,7 @@ Abderrahmane yeddou :
                                         ${item.type}
                                     </button>
                                     <span class="font-bold text-slate-800">${item.designation}</span>
-                                    <span class="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-semibold">${colLabel}</span>
+                                    <span class="text-[10px] text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded font-semibold">${targetLabel}</span>
                                 </div>
                                 <p class="text-[10px] text-slate-400">Brut : "${item.rawName}"</p>
                             </div>
@@ -882,15 +918,23 @@ Abderrahmane yeddou :
             renderIaDetectedList();
         }
 
-        async function applySingleMovement({ type, societe, designation, table, qty, tech, secteur, dateStr }) {
-            const colToUpdate = resolveStockColumn(table, societe);
-            const sourceList = table === 'stock_outillage' ? outillageData : consumablesData;
-            const targetItem = sourceList.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
-
-            if (targetItem) {
-                const currentVal = Number(targetItem[colToUpdate] ?? 0);
-                const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
-                await supabaseClient.from(table).update({ [colToUpdate]: newVal }).eq('id', targetItem.id);
+        async function applySingleMovement({ type, societe, designation, table, operateur, qty, tech, secteur, dateStr }) {
+            if (table === 'stock_outillage') {
+                const targetMat = outillageData.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
+                if (targetMat) {
+                    const currentVal = getMaterielTotal(targetMat);
+                    const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
+                    const colName = 'quantite' in targetMat ? 'quantite' : ('total' in targetMat ? 'total' : 'moba');
+                    await supabaseClient.from('stock_outillage').update({ [colName]: newVal }).eq('id', targetMat.id);
+                }
+            } else {
+                const targetCons = consumablesData.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
+                if (targetCons) {
+                    const colToUpdate = societe || 'moba';
+                    const currentVal = Number(targetCons[colToUpdate] ?? 0);
+                    const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
+                    await supabaseClient.from('stock_consommables').update({ [colToUpdate]: newVal }).eq('id', targetCons.id);
+                }
             }
 
             let isoDate = new Date().toISOString().split('T')[0];
@@ -901,8 +945,8 @@ Abderrahmane yeddou :
 
             await supabaseClient.from('stock_historique').insert([{
                 type_mouvement: type,
-                societe: colToUpdate,
-                operateur: document.getElementById('ia-operator')?.value || 'stock_generique',
+                societe: table === 'stock_outillage' ? 'materiel' : (societe || 'moba'),
+                operateur: operateur || document.getElementById('ia-operator')?.value || 'stock_generique',
                 designation,
                 quantite: qty,
                 intervenant: tech,
@@ -921,6 +965,7 @@ Abderrahmane yeddou :
 
             const societe = document.getElementById('ia-societe').value;
             const secteur = document.getElementById('ia-secteur').value;
+            const operateur = document.getElementById('ia-operator').value;
 
             showToast("Mise à jour", "Enregistrement dans Supabase...", "fa-spinner fa-spin", "text-indigo-600");
 
@@ -931,6 +976,7 @@ Abderrahmane yeddou :
                         societe,
                         designation: item.designation,
                         table: item.table,
+                        operateur,
                         qty: item.qty,
                         tech: item.tech,
                         secteur,
@@ -973,16 +1019,17 @@ Abderrahmane yeddou :
         }
 
         function renderAnalytics() {
-            const all = [...consumablesData, ...outillageData];
-            const sumMoba = all.reduce((acc, i) => acc + Number(i.moba ?? 0), 0);
-            const sumNexum = all.reduce((acc, i) => acc + Number(i.nexum ?? 0), 0);
-            const sumHorizon = all.reduce((acc, i) => acc + Number(i.orange ?? 0), 0);
-            const sumGenerique = all.reduce((acc, i) => acc + getGeneriqueValue(i), 0);
+            const sums = consumablesData.reduce((acc, i) => {
+                const v = getConsumableSocieteValues(i);
+                acc.moba += v.moba;
+                acc.nexum += v.nexum;
+                acc.horizon += v.horizon;
+                return acc;
+            }, { moba: 0, nexum: 0, horizon: 0 });
 
-            document.getElementById('kpi-moba').textContent = sumMoba;
-            document.getElementById('kpi-nexum').textContent = sumNexum;
-            document.getElementById('kpi-horizon').textContent = sumHorizon;
-            document.getElementById('kpi-generique').textContent = sumGenerique;
+            document.getElementById('kpi-moba').textContent = sums.moba;
+            document.getElementById('kpi-nexum').textContent = sums.nexum;
+            document.getElementById('kpi-horizon').textContent = sums.horizon;
 
             const opTotals = {};
             historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
@@ -1007,11 +1054,11 @@ Abderrahmane yeddou :
             chartSocInstance = new Chart(document.getElementById('chartSociete'), {
                 type: 'bar',
                 data: {
-                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon / Orange', 'Générique'],
+                    labels: ['Moba Fibre', 'Nexum & Co', 'Horizon Groupe'],
                     datasets: [{
-                        label: 'Quantité en stock',
-                        data: [sumMoba, sumNexum, sumHorizon, sumGenerique],
-                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#0d9488'],
+                        label: 'Quantité consommables',
+                        data: [sums.moba, sums.nexum, sums.horizon],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
                         borderRadius: 8
                     }]
                 },
@@ -1025,27 +1072,27 @@ Abderrahmane yeddou :
             const list = getCombinedStock();
 
             if (isMaterielOnly) {
-                const headers = ['Designation', 'Depot', 'Generique', 'Alerte'];
+                const headers = ['Designation', 'Depot', 'Total', 'Unite', 'Alerte'];
                 const rows = list.map(i => [
                     `"${i.designation}"`,
                     i.secteur || '',
-                    getGeneriqueValue(i),
+                    getMaterielTotal(i),
+                    i.unite || 'Unités',
                     Number(i.seuil_alerte ?? 2)
                 ].join(';'));
                 downloadCsv(headers, rows);
                 return;
             }
 
-            const headers = ['Designation', 'Depot', 'Moba', 'Nexum', 'Horizon_Orange', 'Generique', 'Alerte'];
-            const rows = list.map(i => [
-                `"${i.designation}"`,
-                i.secteur || '',
-                Number(i.moba ?? 0),
-                Number(i.nexum ?? 0),
-                Number(i.orange ?? 0),
-                getGeneriqueValue(i),
-                Number(i.seuil_alerte ?? 2)
-            ].join(';'));
+            const headers = ['Designation', 'Depot', 'Moba_Fibre', 'Nexum_Co', 'Horizon_Groupe', 'Total', 'Alerte'];
+            const rows = list.map(i => {
+                if (i._table === 'stock_outillage') {
+                    const tot = getMaterielTotal(i);
+                    return [`"${i.designation}"`, i.secteur || '', 0, 0, 0, tot, Number(i.seuil_alerte ?? 2)].join(';');
+                }
+                const v = getConsumableSocieteValues(i);
+                return [`"${i.designation}"`, i.secteur || '', v.moba, v.nexum, v.horizon, v.total, Number(i.seuil_alerte ?? 2)].join(';');
+            });
             downloadCsv(headers, rows);
         }
 
