@@ -290,9 +290,9 @@
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Société</label>
                                     <select id="ia-societe" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold">
-                                        <option value="moba" selected>Moba Fibre</option>
-                                        <option value="nexum">Nexum & Co</option>
-                                        <option value="orange">Horizon Groupe</option>
+                                        <option value="moba_fibre" selected>Moba Fibre</option>
+                                        <option value="nexum_co">Nexum & Co</option>
+                                        <option value="horizon_groupe">Horizon Groupe</option>
                                     </select>
                                 </div>
                                 <div>
@@ -323,7 +323,7 @@ Abderrahmane yeddou :
 - 1 touret 
 - 10 pto
 - 50 jarretière 
-- 2 pre-cable"></textarea>
+- 2 echelles"></textarea>
                             </div>
                         </div>
 
@@ -371,12 +371,28 @@ Abderrahmane yeddou :
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const CONSUMABLES_DICTIONARY = {
-            "TOURET 500M": ["touret", "tourets", "touret 500m", "touret 500"],
-            "PTO": ["pto", "ptos"],
-            "JARRETIERE 3.5M": ["jarretiere", "jarretieres", "jarretière", "jarretières", "jarrtiere", "jarrtieres", "jarretières vertes", "jarretiere 3.5m", "jarrtieres 3m5"],
-            "PRE-CABLE": ["pre-cable", "pre cable", "precable", "pré-câble", "pre-câble"],
-            "CABLE APPART": ["cable appart", "câble appart", "cable appartement"],
-            "KIT APPART": ["kit appart", "kit", "kits", "kit appartement"]
+            "Tourets de câble (500m)": ["touret", "tourets", "touret 500m", "touret 500"],
+            "Livebox 6": ["livebox 6", "lb6"],
+            "Livebox 7": ["livebox 7", "lb7"],
+            "Livebox LBS": ["livebox lbs", "lbs"],
+            "Livebox LB5": ["livebox lb5", "lb5"],
+            "Livebox UHD": ["livebox uhd", "uhd"],
+            "Boîtier ONT": ["boitier ont", "boîtier ont", "ont"],
+            "PTO 1 FO": ["pto 1 fo", "pto1fo"],
+            "PTO 4 FO": ["pto 4 fo", "pto4fo", "pto", "ptos"],
+            "câbles déplacement PTO": ["cable deplacement pto", "câbles déplacement pto", "deplacement pto"],
+            "Câble Appartement 1 FO": ["cable appartement 1 fo", "câble appartement 1 fo", "cable appart", "câble appart"],
+            "Kits Souterrain": ["kit souterrain", "kits souterrain", "souterrain"],
+            "Sous-marin": ["sous-marin", "sous marin"],
+            "Cartons Malico": ["carton malico", "cartons malico", "malico"],
+            "Kits PAV": ["kit pav", "kits pav", "pav"],
+            "Kits Appartement": ["kit appartement", "kits appartement", "kit appart", "kit", "kits"],
+            "ONU Free": ["onu free", "onu"],
+            "Jarretières Blanches": ["jarretiere blanche", "jarretieres blanches", "jarretières blanches", "jarretiere"],
+            "Jarretières Orange": ["jarretiere orange", "jarretieres orange", "jarretières orange"],
+            "Jarretières 1,5m": ["jarretiere 1,5m", "jarretieres 1,5m", "jarretières 1,5m", "1,5m", "1.5m"],
+            "Jarretières 4m": ["jarretiere 4m", "jarretieres 4m", "jarretières 4m", "4m"],
+            "Jarretière 3,5m": ["jarretiere 3,5m", "jarretieres 3,5m", "jarretière 3,5m", "3,5m", "3.5m"]
         };
 
         const OUTILLAGE_DICTIONARY = {
@@ -416,18 +432,29 @@ Abderrahmane yeddou :
             addBatchRow();
         };
 
-        // Consommables existants affectés à Moba Fibre (horizon_groupe / orange = 0)
-        function getConsumableSocieteValues(item) {
-            const existingHorizon = Number(item.horizon_groupe ?? item.orange ?? 0);
-            const moba = Number(item.moba ?? item.moba_fibre ?? 0) + existingHorizon;
-            const nexum = Number(item.nexum ?? item.nexum_co ?? 0);
+        // Consommables : les quantités existantes sont affectées à Moba Fibre (Horizon Groupe = 0)
+        function getConsumableSocieteValues(item, opFilter = "") {
+            let baseQty = 0;
+            if (opFilter && ['free', 'orange', 'bouygues', 'stock_generique'].includes(opFilter)) {
+                baseQty = Number(item[opFilter] ?? 0);
+            } else {
+                baseQty =
+                    Number(item.free ?? 0) +
+                    Number(item.orange ?? 0) +
+                    Number(item.bouygues ?? 0) +
+                    Number(item.stock_generique ?? 0) +
+                    Number(item.horizon_groupe ?? 0);
+            }
+
+            const moba = Number(item.moba_fibre ?? 0) + baseQty;
+            const nexum = Number(item.nexum_co ?? 0);
             const horizon = 0;
             return { moba, nexum, horizon, total: moba + nexum + horizon };
         }
 
-        // Quantité matériels depuis la table stock_outillage (ex: ('CÔNES', 9, 'Unités') -> total = 9)
+        // Quantité matériels depuis stock_outillage (ex: ('CÔNES', 9, 'Unités') -> total = 9)
         function getMaterielTotal(item) {
-            return Number(item.quantite ?? item.total ?? item.stock ?? item.generique ?? item.moba ?? 0);
+            return Number(item.quantite ?? item.total ?? item.stock ?? 0);
         }
 
         function showToast(title, message, icon = "fa-info-circle", colorClass = "text-blue-500") {
@@ -554,6 +581,7 @@ Abderrahmane yeddou :
             const tbody = document.getElementById('stock-table-body');
             const typeVal = document.getElementById('filter-type')?.value || '';
             const secteur = document.getElementById('filter-secteur')?.value || '';
+            const opFilter = document.getElementById('filter-operateur')?.value || '';
             const search = normalizeStr(document.getElementById('stock-search')?.value || '');
             const isMaterielOnly = typeVal === 'materiel';
 
@@ -608,7 +636,7 @@ Abderrahmane yeddou :
                     const tr = document.createElement('tr');
                     tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
                     tr.innerHTML = `
-                        <td class="p-3 text-center text-slate-400">${idx + 1}</td>
+                        <td class="p-3 text-center text-slate-400">${item.id || (idx + 1)}</td>
                         <td class="p-3 font-bold text-slate-800">${item.designation}</td>
                         <td class="p-3 text-center font-extrabold ${isLow ? 'text-rose-600' : 'text-emerald-700'} bg-emerald-50/30">${total}</td>
                         <td class="p-3 text-center text-slate-600">${unite}</td>
@@ -616,13 +644,14 @@ Abderrahmane yeddou :
                     `;
                     tbody.appendChild(tr);
                 } else {
-                    const { moba, nexum, horizon, total } = getConsumableSocieteValues(item);
+                    const { moba, nexum, horizon, total } = getConsumableSocieteValues(item, opFilter);
                     const isLow = total <= seuil;
+                    const numDisplay = item.reference_id ?? item.id ?? (idx + 1);
 
                     const tr = document.createElement('tr');
                     tr.className = isLow ? "bg-rose-50/50 hover:bg-rose-50" : "hover:bg-slate-50";
                     tr.innerHTML = `
-                        <td class="p-3 text-center text-slate-400">${idx + 1}</td>
+                        <td class="p-3 text-center text-slate-400">${numDisplay}</td>
                         <td class="p-3 font-bold text-slate-800">${item.designation}</td>
                         <td class="p-3 text-center font-semibold text-blue-700 bg-blue-50/30">${moba}</td>
                         <td class="p-3 text-center font-semibold text-amber-700 bg-amber-50/30">${nexum}</td>
@@ -647,7 +676,6 @@ Abderrahmane yeddou :
             document.getElementById('stat-low-stock').textContent = lowCount;
         }
 
-        // Articles exactement pareils à ceux présents dans le stock (avec repli sur dictionnaires si stock vide)
         function getStockArticleOptionsHtml(selectedVal = "") {
             const consNames = consumablesData.length
                 ? [...new Set(consumablesData.map(i => i.designation).filter(Boolean))]
@@ -679,7 +707,7 @@ Abderrahmane yeddou :
             });
         }
 
-        // Ordre demandé : Entrée/Sortie -> Société -> Article -> Opérateur -> Quantité -> Technicien
+        // Ordre : Entrée/Sortie -> Société -> Article -> Opérateur -> Quantité -> Technicien
         function addBatchRow() {
             const container = document.getElementById('batch-rows-container');
             const row = document.createElement('div');
@@ -690,9 +718,9 @@ Abderrahmane yeddou :
                     <option value="SORTIE">SORTIE (-)</option>
                 </select>
                 <select class="row-societe bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
-                    <option value="moba">Moba Fibre</option>
-                    <option value="nexum">Nexum & Co</option>
-                    <option value="orange">Horizon Groupe</option>
+                    <option value="moba_fibre">Moba Fibre</option>
+                    <option value="nexum_co">Nexum & Co</option>
+                    <option value="horizon_groupe">Horizon Groupe</option>
                 </select>
                 <select onchange="handleBatchRowItemChange(this)" class="row-designation sm:col-span-2 bg-white border border-slate-200 rounded-lg px-2.5 py-2 font-semibold">
                     ${getStockArticleOptionsHtml()}
@@ -883,7 +911,7 @@ Abderrahmane yeddou :
 
                     const targetLabel = item.table === 'stock_outillage'
                         ? 'Total Matériel'
-                        : `Société : ${document.getElementById('ia-societe')?.value || 'moba'}`;
+                        : `Société : ${document.getElementById('ia-societe')?.value || 'moba_fibre'}`;
 
                     html += `
                         <div class="p-2.5 flex items-center justify-between gap-2 text-xs ${!item.isValid ? 'bg-amber-50/50' : ''}">
@@ -919,6 +947,8 @@ Abderrahmane yeddou :
         }
 
         async function applySingleMovement({ type, societe, designation, table, operateur, qty, tech, secteur, dateStr }) {
+            const opVal = operateur || document.getElementById('ia-operator')?.value || 'stock_generique';
+
             if (table === 'stock_outillage') {
                 const targetMat = outillageData.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
                 if (targetMat) {
@@ -930,28 +960,30 @@ Abderrahmane yeddou :
             } else {
                 const targetCons = consumablesData.find(i => i.designation === designation && (!i.secteur || i.secteur === secteur || i.secteur === 'GENERAL'));
                 if (targetCons) {
-                    const colToUpdate = societe || 'moba';
+                    const colToUpdate = ['free', 'orange', 'bouygues', 'stock_generique'].includes(opVal)
+                        ? opVal
+                        : (societe || 'moba_fibre');
                     const currentVal = Number(targetCons[colToUpdate] ?? 0);
                     const newVal = type === 'ENTREE' ? currentVal + qty : Math.max(0, currentVal - qty);
                     await supabaseClient.from('stock_consommables').update({ [colToUpdate]: newVal }).eq('id', targetCons.id);
                 }
             }
 
-            let isoDate = new Date().toISOString().split('T')[0];
+            let isoDate = new Date().toISOString();
             if (dateStr && dateStr.includes('/')) {
                 const [d, m, y] = dateStr.split('/');
-                if (d && m && y) isoDate = `${y}-${m}-${d}`;
+                if (d && m && y) isoDate = `${y}-${m}-${d}T12:00:00Z`;
             }
 
             await supabaseClient.from('stock_historique').insert([{
+                horodatage: isoDate,
                 type_mouvement: type,
-                societe: table === 'stock_outillage' ? 'materiel' : (societe || 'moba'),
-                operateur: operateur || document.getElementById('ia-operator')?.value || 'stock_generique',
+                societe: table === 'stock_outillage' ? 'materiel' : (societe || 'moba_fibre'),
+                secteur,
+                operator: opVal,
                 designation,
                 quantite: qty,
-                intervenant: tech,
-                secteur,
-                date_mouvement: isoDate
+                intervenant: tech
             }]);
         }
 
@@ -1004,12 +1036,17 @@ Abderrahmane yeddou :
             }
             historyData.forEach(h => {
                 const isEntree = h.type_mouvement === 'ENTREE';
+                const dateLabel = h.horodatage
+                    ? new Date(h.horodatage).toLocaleDateString('fr-FR')
+                    : (h.date_mouvement || '-');
+                const opLabel = h.operator || h.operateur || '-';
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="p-3 whitespace-nowrap">${h.date_mouvement || (h.created_at ? new Date(h.created_at).toLocaleDateString('fr-FR') : '-')}</td>
+                    <td class="p-3 whitespace-nowrap">${dateLabel}</td>
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isEntree ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${h.type_mouvement}</span></td>
                     <td class="p-3 uppercase font-semibold">${h.societe || '-'}</td>
-                    <td class="p-3">${h.operateur || '-'}</td>
+                    <td class="p-3">${opLabel}</td>
                     <td class="p-3 font-bold text-slate-800">${h.designation}</td>
                     <td class="p-3 text-center font-extrabold ${isEntree ? 'text-emerald-600' : 'text-rose-600'}">${isEntree ? '+' : '-'}${h.quantite}</td>
                     <td class="p-3">${h.intervenant || '-'}</td>
@@ -1033,7 +1070,7 @@ Abderrahmane yeddou :
 
             const opTotals = {};
             historyData.filter(h => h.type_mouvement === 'SORTIE').forEach(h => {
-                const op = h.operateur || 'non_defini';
+                const op = h.operator || h.operateur || 'non_defini';
                 opTotals[op] = (opTotals[op] || 0) + Number(h.quantite || 0);
             });
 
